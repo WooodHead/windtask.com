@@ -8,6 +8,11 @@ export const categoryMeta: Record<string, { title: string; description: string }
     description:
       'Cloud cost, orphan resources, and the habits that keep agent-created infrastructure from billing after the session ends.',
   },
+  privacy: {
+    title: 'Privacy',
+    description:
+      'Account-type decisions for AI retention and monitoring: what self-assessment actually runs, what stays, and what you can turn off.',
+  },
   notes: {
     title: 'Notes',
     description: 'Short site notes. This shelf exists so a second category has a real route.',

@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 420" role="img" aria-labelledby="title desc">
+  <title id="title">Self-assessment data flow</title>
+  <desc id="desc">User message to Claude response, then offline self-assessment flag that may escalate to human review; assessments are hidden from the user</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#334155"/>
+    </marker>
+    <marker id="arrow-muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b"/>
+    </marker>
+    <filter id="shadow" x="-4%" y="-4%" width="108%" height="112%">
+      <feDropShadow dx="0" dy="1" stdDeviation="1.5" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+  <rect width="960" height="420" fill="#f8fafc"/>
+
+  <!-- Visible path label -->
+  <text x="40" y="36" font-family="system-ui,Segoe UI,sans-serif" font-size="13" font-weight="700" fill="#0f172a">What you see</text>
+
+  <!-- User -->
+  <rect x="40" y="56" width="150" height="88" rx="12" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="115" y="92" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="14" font-weight="700" fill="#0f172a">1. User message</text>
+  <text x="115" y="114" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="11" fill="#475569">Prompt / tools</text>
+  <text x="115" y="132" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="11" fill="#64748b">in the chat</text>
+
+  <line x1="190" y1="100" x2="240" y2="100" stroke="#334155" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Claude response -->
+  <rect x="250" y="56" width="170" height="88" rx="12" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="335" y="92" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="14" font-weight="700" fill="#0f172a">2. Claude answers</text>
+  <text x="335" y="114" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="11" fill="#475569">Reply to you</text>
+  <text x="335" y="132" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="11" fill="#64748b">Real-time path</text>
+
+  <!-- Offline path label -->
+  <text x="40" y="198" font-family="system-ui,Segoe UI,sans-serif" font-size="13" font-weight="700" fill="#0f172a">Offline safety path (not shown to you)</text>
+
+  <!-- Self-assessment -->
+  <rect x="40" y="218" width="210" height="100" rx="12" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.8" filter="url(#shadow)"/>
+  <text x="145" y="252" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="14" font-weight="700" fill="#1e3a8a">3. Self-assessment</text>
+  <text x="145" y="274" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="11" fill="#1e40af">Short JSON: flag / category</text>
+  <text x="145" y="292" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="11" fill="#1e40af">priority / refused / reason</text>
+  <text x="145" y="308" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="10" fill="#64748b">~10 tokens; KV cache reuse</text>
+
+  <!-- Vertical connector from response to assessment -->
+  <line x1="335" y1="144" x2="335" y2="180" stroke="#64748b" stroke-width="2" stroke-dasharray="4 3"/>
+  <line x1="335" y1="180" x2="145" y2="180" stroke="#64748b" stroke-width="2" stroke-dasharray="4 3"/>
+  <line x1="145" y1="180" x2="145" y2="218" stroke="#64748b" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#arrow-muted)"/>
+  <text x="250" y="174" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="10" fill="#64748b">after each reply</text>
+
+  <line x1="250" y1="268" x2="300" y2="268" stroke="#334155" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Flag != verdict -->
+  <rect x="310" y="218" width="200" height="100" rx="12" fill="#fffbeb" stroke="#f59e0b" stroke-width="1.8" filter="url(#shadow)"/>
+  <text x="410" y="252" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="14" font-weight="700" fill="#92400e">4. Flag ≠ verdict</text>
+  <text x="410" y="274" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="11" fill="#a16207">Signal for review</text>
+  <text x="410" y="292" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="11" fill="#a16207">Not a policy ruling</text>
+  <text x="410" y="308" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="10" fill="#64748b">Priority + repeats matter</text>
+
+  <line x1="510" y1="268" x2="560" y2="268" stroke="#334155" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Aggregation / human -->
+  <rect x="570" y="218" width="170" height="100" rx="12" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="655" y="252" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="14" font-weight="700" fill="#0f172a">5. Escalate</text>
+  <text x="655" y="274" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="11" fill="#475569">Org aggregates</text>
+  <text x="655" y="292" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="11" fill="#475569">Human review</text>
+  <text x="655" y="308" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="10" fill="#64748b">When priority is high</text>
+
+  <line x1="740" y1="268" x2="790" y2="268" stroke="#334155" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- ZDR note -->
+  <rect x="800" y="218" width="120" height="100" rx="12" fill="#f0fdf4" stroke="#22c55e" stroke-width="1.8" filter="url(#shadow)"/>
+  <text x="860" y="256" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="13" font-weight="700" fill="#166534">ZDR traffic</text>
+  <text x="860" y="278" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="11" fill="#15803d">Not assessed</text>
+  <text x="860" y="296" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="10" fill="#166534">today (official)</text>
+
+  <!-- Caption -->
+  <text x="480" y="360" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="13" fill="#334155">Self-assessment is an offline first-stage monitor. It does not block the live reply.</text>
+  <text x="480" y="384" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="12" fill="#64748b">Assessment turns stay out of your chat. A flag starts review; it is not a finding of violation.</text>
+</svg>
