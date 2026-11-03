@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 360" role="img" aria-labelledby="title2 desc2">
+  <title id="title2">Log to candidate to human-confirmed teardown</title>
+  <desc id="desc2">Safe workflow: session logs to candidates to optional verify to human approval to teardown</desc>
+  <defs>
+    <marker id="arrow2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#334155"/>
+    </marker>
+    <filter id="shadow2" x="-4%" y="-4%" width="108%" height="112%">
+      <feDropShadow dx="0" dy="1" stdDeviation="1.5" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+  <rect width="960" height="360" fill="#f8fafc"/>
+  <!-- Box 1 -->
+  <rect x="24" y="110" width="150" height="90" rx="12" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5" filter="url(#shadow2)"/>
+  <text x="99" y="148" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="14" font-weight="700" fill="#0f172a">Session logs</text>
+  <text x="99" y="172" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="11" fill="#475569">Claude / Codex</text>
+  <text x="99" y="188" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="11" fill="#64748b">(+ MCP traces)</text>
+  <line x1="184" y1="155" x2="220" y2="155" stroke="#334155" stroke-width="2" marker-end="url(#arrow2)"/>
+  <!-- Box 2 -->
+  <rect x="230" y="110" width="150" height="90" rx="12" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5" filter="url(#shadow2)"/>
+  <text x="305" y="148" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="14" font-weight="700" fill="#0f172a">Candidates</text>
+  <text x="305" y="172" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="11" fill="#475569">create − delete</text>
+  <text x="305" y="188" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="11" fill="#64748b">read-only scan</text>
+  <line x1="390" y1="155" x2="426" y2="155" stroke="#334155" stroke-width="2" marker-end="url(#arrow2)"/>
+  <!-- Box 3 -->
+  <rect x="436" y="110" width="150" height="90" rx="12" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.6" filter="url(#shadow2)"/>
+  <text x="511" y="144" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="14" font-weight="700" fill="#1e3a8a">Optional verify</text>
+  <text x="511" y="168" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="11" fill="#1d4ed8">CLI describe/list</text>
+  <text x="511" y="186" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="11" fill="#2563eb">off by default</text>
+  <line x1="596" y1="155" x2="632" y2="155" stroke="#334155" stroke-width="2" marker-end="url(#arrow2)"/>
+  <!-- Box 4 -->
+  <rect x="642" y="110" width="150" height="90" rx="12" fill="#fefce8" stroke="#ca8a04" stroke-width="1.6" filter="url(#shadow2)"/>
+  <text x="717" y="144" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="14" font-weight="700" fill="#854d0e">Human review</text>
+  <text x="717" y="168" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="11" fill="#a16207">deps · tags · age</text>
+  <text x="717" y="186" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="11" fill="#a16207">dry-run first</text>
+  <line x1="802" y1="155" x2="838" y2="155" stroke="#334155" stroke-width="2" marker-end="url(#arrow2)"/>
+  <!-- Box 5 -->
+  <rect x="848" y="110" width="90" height="90" rx="12" fill="#f0fdf4" stroke="#16a34a" stroke-width="1.6" filter="url(#shadow2)"/>
+  <text x="893" y="152" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="13" font-weight="700" fill="#14532d">Teardown</text>
+  <text x="893" y="174" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="11" fill="#15803d">confirmed</text>
+  <!-- Bottom note -->
+  <rect x="120" y="250" width="720" height="70" rx="10" fill="#ffffff" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="480" y="280" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="13" fill="#0f172a">Never auto-delete from log matches alone.</text>
+  <text x="480" y="302" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="12" fill="#64748b">Confirm live state, dependencies, and blast radius before any destroy command.</text>
+</svg>

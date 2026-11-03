@@ -1,0 +1,25 @@
+---
+import { articlePath, categoryPath, categoryTitle } from '../lib/articles';
+import { formatDate } from '../lib/site';
+import type { Article } from '../lib/articles';
+
+interface Props {
+  article: Article;
+}
+
+const { article } = Astro.props;
+---
+
+<article class="border-t border-line py-6">
+  <p class="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs tracking-[0.14em] text-muted uppercase">
+    <a class="text-copper-deep hover:text-copper" href={categoryPath(article.data.category)}>
+      {categoryTitle(article.data.category)}
+    </a>
+    <time datetime={article.data.pubDate.toISOString()}>{formatDate(article.data.pubDate)}</time>
+    {article.data.sample && <span>Sample</span>}
+  </p>
+  <h2 class="mt-2 font-serif text-2xl leading-tight tracking-tight sm:text-3xl">
+    <a class="hover:text-copper-deep" href={articlePath(article.id)}>{article.data.title}</a>
+  </h2>
+  <p class="mt-2 max-w-3xl text-muted">{article.data.description}</p>
+</article>

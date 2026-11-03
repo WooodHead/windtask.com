@@ -1,0 +1,106 @@
+---
+import '../styles/global.css';
+import Seo from '../components/Seo.astro';
+import { PUBLIC_ADSENSE_CLIENT } from 'astro:env/client';
+import { site } from '../lib/site';
+
+interface Props {
+  title: string;
+  description: string;
+  canonical?: string;
+  ogType?: 'website' | 'article';
+  publishedTime?: Date;
+  updatedTime?: Date;
+  tags?: string[];
+  noindex?: boolean;
+}
+
+const {
+  title,
+  description,
+  canonical = Astro.url.pathname,
+  ogType = 'website',
+  publishedTime,
+  updatedTime,
+  tags,
+  noindex = false,
+} = Astro.props;
+
+const adsClient = PUBLIC_ADSENSE_CLIENT.trim();
+const pathname = Astro.url.pathname;
+const adsSrc = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${encodeURIComponent(adsClient)}`;
+
+const nav = [
+  { href: '/articles/', label: 'Articles' },
+  { href: '/categories/', label: 'Categories' },
+  { href: '/rss.xml', label: 'RSS' },
+];
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" />
+    <Seo
+      title={title}
+      description={description}
+      canonical={canonical}
+      ogType={ogType}
+      publishedTime={publishedTime}
+      updatedTime={updatedTime}
+      tags={tags}
+      noindex={noindex}
+    />
+    {adsClient && <script is:inline async src={adsSrc} crossorigin="anonymous" />}
+  </head>
+  <body>
+    <a
+      class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:bg-paper-2 focus:px-3 focus:py-2"
+      href="#content"
+    >
+      Skip to content
+    </a>
+    <header class="border-b border-line">
+      <div class="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-5 py-4">
+        <a class="font-serif text-sm font-semibold tracking-[0.2em] uppercase" href="/">Windtask</a>
+        <nav aria-label="Primary">
+          <ul class="flex gap-5 text-sm">
+            {
+              nav.map((item) => (
+                <li>
+                  <a
+                    class:list={[
+                      'hover:text-copper-deep',
+                      pathname.startsWith(item.href) && 'text-copper-deep underline decoration-line underline-offset-4',
+                    ]}
+                    href={item.href}
+                    aria-current={pathname.startsWith(item.href) ? 'page' : undefined}
+                  >
+                    {item.label}
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main id="content" tabindex="-1" class="mx-auto max-w-6xl px-5 py-10 outline-none sm:py-14">
+      <slot />
+    </main>
+    <footer class="border-t border-line">
+      <div class="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-5 py-6 text-sm text-muted">
+        <p>{site.name}. Notes on work that keeps billing after the session ends.</p>
+        <p>
+          <a class="hover:text-ink" href="/rss.xml">RSS</a>
+          <span aria-hidden="true"> · </span>
+          <a class="hover:text-ink" href={site.url}>{site.url.replace('https://', '')}</a>
+        </p>
+      </div>
+    </footer>
+  </body>
+</html>
