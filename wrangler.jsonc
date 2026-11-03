@@ -1,0 +1,35 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "windtask",
+  "main": "@astrojs/cloudflare/entrypoints/server",
+  "compatibility_date": "2026-11-03",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "upload_source_maps": true,
+  "workers_dev": true,
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "html_handling": "force-trailing-slash",
+    "not_found_handling": "404-page"
+  },
+  "observability": {
+    "enabled": true,
+    "logs": {
+      "enabled": true,
+      "head_sampling_rate": 1
+    },
+    "traces": {
+      "enabled": true,
+      "head_sampling_rate": 0.01
+    }
+  },
+  // Attaches the Worker as the origin for windtask.com on the next `wrangler deploy`.
+  // Cloudflare creates the DNS record. Requires the zone on the same account.
+  // This repo does not deploy; run the command yourself when the zone is ready.
+  "routes": [
+    {
+      "pattern": "windtask.com",
+      "custom_domain": true
+    }
+  ]
+}

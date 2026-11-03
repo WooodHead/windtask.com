@@ -1,0 +1,21 @@
+---
+import AdSlot from '../../components/AdSlot.astro';
+import ArticleCard from '../../components/ArticleCard.astro';
+import Base from '../../layouts/Base.astro';
+import { getArticles } from '../../lib/articles';
+
+const articles = await getArticles();
+const description = 'Every note published on Windtask, newest first.';
+---
+
+<Base title="Articles" description={description} canonical="/articles/">
+  <header class="max-w-3xl">
+    <p class="text-xs tracking-[0.18em] text-copper-deep uppercase">Index</p>
+    <h1 class="mt-3 font-serif text-4xl tracking-tight sm:text-5xl">Articles</h1>
+    <p class="mt-4 text-lg text-muted">{description}</p>
+  </header>
+  <AdSlot />
+  <div class="mt-6">
+    {articles.map((article) => <ArticleCard article={article} />)}
+  </div>
+</Base>
