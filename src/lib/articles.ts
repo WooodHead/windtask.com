@@ -17,6 +17,11 @@ export const categoryMeta: Record<string, { title: string; description: string }
     title: 'Notes',
     description: 'Short site notes. This shelf exists so a second category has a real route.',
   },
+  security: {
+    title: 'Security',
+    description:
+      'Browser freshness, containment, and the trust decisions coding agents make when they open pages you did not write.',
+  },
 };
 
 export function categoryTitle(slug: string): string {

@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 360" role="img" aria-labelledby="title desc">
+  <title id="title">Chrome fix → Playwright roll → release lag timeline</title>
+  <desc id="desc">Recurring timeline: Chrome ships a security fix, Playwright later rolls browsers.json, then a Playwright release ships the newer pin; agents on older pins stay behind until they upgrade and reinstall browsers or use channel chrome</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#334155"/>
+    </marker>
+    <filter id="shadow" x="-3%" y="-3%" width="106%" height="112%">
+      <feDropShadow dx="0" dy="1" stdDeviation="1.4" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+  <rect width="980" height="360" fill="#f8fafc"/>
+
+  <text x="40" y="36" font-family="system-ui,Segoe UI,sans-serif" font-size="15" font-weight="700" fill="#0f172a">Recurring lag: Chrome ships a fix → Playwright rolls → users upgrade</text>
+  <text x="40" y="56" font-family="system-ui,Segoe UI,sans-serif" font-size="11" fill="#64748b">Illustrative Nov 2026 window using public pins (Playwright 1.64.x → Chromium 156.0.8078.4; Chrome Stable 156.0.8078.73+).</text>
+
+  <!-- Timeline axis -->
+  <line x1="60" y1="160" x2="920" y2="160" stroke="#94a3b8" stroke-width="2"/>
+
+  <!-- Step 1 -->
+  <circle cx="140" cy="160" r="10" fill="#0f172a"/>
+  <rect x="55" y="80" width="170" height="58" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.4" filter="url(#shadow)"/>
+  <text x="140" y="104" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="13" font-weight="700" fill="#0f172a">1. Chrome Stable</text>
+  <text x="140" y="122" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="11" fill="#475569">ships security fix</text>
+  <text x="140" y="198" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="11" font-weight="600" fill="#0f172a">Oct 27, 2026</text>
+  <text x="140" y="216" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="10" fill="#64748b">156.0.8078.73/.74</text>
+  <text x="140" y="232" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="10" fill="#64748b">52 security fixes</text>
+
+  <line x1="225" y1="160" x2="320" y2="160" stroke="#334155" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Gap callout -->
+  <rect x="250" y="118" width="120" height="36" rx="8" fill="#fef2f2" stroke="#ef4444" stroke-width="1.3"/>
+  <text x="310" y="140" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="11" font-weight="700" fill="#991b1b">lag window</text>
+
+  <!-- Step 2 -->
+  <circle cx="420" cy="160" r="10" fill="#0f172a"/>
+  <rect x="335" y="80" width="170" height="58" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.4" filter="url(#shadow)"/>
+  <text x="420" y="104" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="13" font-weight="700" fill="#0f172a">2. Playwright roll</text>
+  <text x="420" y="122" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="11" fill="#475569">browsers.json pin</text>
+  <text x="420" y="198" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="11" font-weight="600" fill="#0f172a">main can move first</text>
+  <text x="420" y="216" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="10" fill="#64748b">e.g. 158.0.8127.2</text>
+  <text x="420" y="232" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="10" fill="#64748b">not yet a release pin</text>
+
+  <line x1="505" y1="160" x2="600" y2="160" stroke="#334155" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Step 3 -->
+  <circle cx="700" cy="160" r="10" fill="#0f172a"/>
+  <rect x="615" y="80" width="170" height="58" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.4" filter="url(#shadow)"/>
+  <text x="700" y="104" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="13" font-weight="700" fill="#0f172a">3. PW release</text>
+  <text x="700" y="122" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="11" fill="#475569">ships new pin</text>
+  <text x="700" y="198" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="11" font-weight="600" fill="#0f172a">users must upgrade</text>
+  <text x="700" y="216" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="10" fill="#64748b">+ npx playwright install</text>
+  <text x="700" y="232" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="10" fill="#64748b">or use channel: chrome</text>
+
+  <line x1="785" y1="160" x2="860" y2="160" stroke="#334155" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Step 4 -->
+  <circle cx="900" cy="160" r="10" fill="#b91c1c"/>
+  <rect x="820" y="80" width="140" height="58" rx="10" fill="#fef2f2" stroke="#ef4444" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="890" y="104" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="12" font-weight="700" fill="#991b1b">4. Stuck agents</text>
+  <text x="890" y="122" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="10" fill="#b91c1c">old pin still used</text>
+
+  <!-- Bottom callout: current stuck state -->
+  <rect x="40" y="268" width="900" height="64" rx="10" fill="#fff7ed" stroke="#f97316" stroke-width="1.3"/>
+  <text x="490" y="294" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="12" font-weight="700" fill="#9a3412">Nov 2026 snapshot: Playwright 1.64.0/1.64.1 still pin Chromium 156.0.8078.4 (pre-Oct 27 Stable)</text>
+  <text x="490" y="314" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="11" fill="#c2410c">Same pattern will repeat after every Chrome security train—treat lag as a process, not a one-off CVE.</text>
+</svg>
