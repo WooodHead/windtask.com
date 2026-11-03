@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 400" role="img" aria-labelledby="title desc">
+  <title id="title">Agent identity lifecycle: create to revoke</title>
+  <desc id="desc">Flow: create bundle or blueprint, delegate connections from user team or service, issue short-lived token, monitor and audit under the agent name, then rotate or revoke one agent</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#334155"/>
+    </marker>
+    <filter id="shadow" x="-3%" y="-3%" width="106%" height="112%">
+      <feDropShadow dx="0" dy="1" stdDeviation="1.4" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+  <rect width="980" height="400" fill="#f8fafc"/>
+
+  <text x="40" y="34" font-family="system-ui,Segoe UI,sans-serif" font-size="15" font-weight="700" fill="#0f172a">Agent identity lifecycle: create → delegate → mint → monitor → rotate/revoke</text>
+  <text x="40" y="56" font-family="system-ui,Segoe UI,sans-serif" font-size="12" fill="#64748b">Secrets stay in the broker/gateway. The agent carries only a short-lived, scoped token.</text>
+
+  <!-- Step 1 -->
+  <rect x="28" y="88" width="160" height="120" rx="12" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="108" y="122" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="13" font-weight="700" fill="#0f172a">1. Create</text>
+  <text x="108" y="146" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="11" fill="#475569">Bundle / blueprint</text>
+  <text x="108" y="166" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="11" fill="#475569">Permission ceiling</text>
+  <text x="108" y="186" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="11" fill="#64748b">Human owner</text>
+
+  <line x1="198" y1="148" x2="228" y2="148" stroke="#334155" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Step 2 -->
+  <rect x="238" y="88" width="160" height="120" rx="12" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.6" filter="url(#shadow)"/>
+  <text x="318" y="118" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="13" font-weight="700" fill="#1e3a8a">2. Delegate</text>
+  <text x="318" y="142" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="11" fill="#1d4ed8">User · team</text>
+  <text x="318" y="162" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="11" fill="#1d4ed8">or service account</text>
+  <text x="318" y="182" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="11" fill="#64748b">Per connection</text>
+
+  <line x1="408" y1="148" x2="438" y2="148" stroke="#334155" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Step 3 -->
+  <rect x="448" y="88" width="160" height="120" rx="12" fill="#f0fdf4" stroke="#16a34a" stroke-width="1.6" filter="url(#shadow)"/>
+  <text x="528" y="118" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="13" font-weight="700" fill="#14532d">3. Issue token</text>
+  <text x="528" y="142" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="11" fill="#15803d">Short-lived mint</text>
+  <text x="528" y="162" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="11" fill="#15803d">Agent never holds</text>
+  <text x="528" y="182" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="11" fill="#64748b">raw upstream secrets</text>
+
+  <line x1="618" y1="148" x2="648" y2="148" stroke="#334155" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Step 4 -->
+  <rect x="658" y="88" width="140" height="120" rx="12" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="728" y="122" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="13" font-weight="700" fill="#0f172a">4. Monitor</text>
+  <text x="728" y="146" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="11" fill="#475569">Audit = agent</text>
+  <text x="728" y="166" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="11" fill="#475569">(+ human when</text>
+  <text x="728" y="186" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="11" fill="#64748b">delegated)</text>
+
+  <line x1="808" y1="148" x2="838" y2="148" stroke="#334155" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Step 5 -->
+  <rect x="848" y="88" width="108" height="120" rx="12" fill="#fef2f2" stroke="#ef4444" stroke-width="1.6" filter="url(#shadow)"/>
+  <text x="902" y="128" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="12" font-weight="700" fill="#991b1b">5. Rotate</text>
+  <text x="902" y="150" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="12" font-weight="700" fill="#991b1b">or revoke</text>
+  <text x="902" y="174" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="11" fill="#b91c1c">One agent</text>
+  <text x="902" y="194" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="11" fill="#dc2626">only</text>
+
+  <!-- Bottom callouts -->
+  <rect x="28" y="240" width="300" height="88" rx="10" fill="#ffffff" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="178" y="274" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="12" font-weight="700" fill="#0f172a">Not inherited from creator</text>
+  <text x="178" y="296" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="11" fill="#64748b">Access comes from delegated</text>
+  <text x="178" y="314" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="11" fill="#64748b">connections—not who clicked Create</text>
+
+  <rect x="340" y="240" width="300" height="88" rx="10" fill="#ffffff" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="490" y="274" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="12" font-weight="700" fill="#0f172a">Intersection ceiling (when offered)</text>
+  <text x="490" y="296" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="11" fill="#64748b">Agent max ∩ human entitlements</text>
+  <text x="490" y="314" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="11" fill="#64748b">Neither principal raises the other</text>
+
+  <rect x="652" y="240" width="300" height="88" rx="10" fill="#fffbeb" stroke="#f59e0b" stroke-width="1.4"/>
+  <text x="802" y="274" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="12" font-weight="700" fill="#92400e">Containment test</text>
+  <text x="802" y="296" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="11" fill="#a16207">Can you stop one agent without</text>
+  <text x="802" y="314" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="11" fill="#a16207">rotating every other workload?</text>
+
+  <text x="490" y="368" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="13" fill="#334155">Treat create→revoke as one design. If revoke needs a fleet restart, the identity model is unfinished.</text>
+</svg>
