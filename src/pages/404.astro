@@ -5,11 +5,13 @@ const description = 'That path is not on Windtask.';
 ---
 
 <Base title="Page not found" description={description} canonical="/404.html" noindex>
-  <p class="text-xs tracking-[0.18em] text-copper-deep uppercase">404</p>
-  <h1 class="mt-3 font-serif text-4xl tracking-tight sm:text-5xl">Nothing filed here.</h1>
-  <p class="mt-4 max-w-xl text-lg text-muted">{description}</p>
-  <p class="mt-6 flex flex-wrap gap-4 text-sm">
-    <a class="border border-ink bg-ink px-4 py-2 text-paper hover:bg-copper-deep" href="/">Back home</a>
-    <a class="border border-line px-4 py-2 hover:border-ink" href="/articles/">Articles</a>
+  <p class="kicker">404</p>
+  <h1 class="mt-3 max-w-[12em] font-serif text-[clamp(2.4rem,6vw,3.6rem)] leading-[1.05] font-medium tracking-[-0.03em] text-balance">
+    Nothing filed here.
+  </h1>
+  <p class="mt-4 max-w-xl text-lg leading-relaxed text-muted">{description}</p>
+  <p class="mt-8 flex flex-wrap gap-3">
+    <a class="btn btn-primary" href="/">Back home</a>
+    <a class="btn btn-ghost" href="/articles/">Articles</a>
   </p>
 </Base>

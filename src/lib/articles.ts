@@ -33,6 +33,10 @@ export function categoryPath(slug: string): string {
   return `/categories/${slug}/`;
 }
 
+export function articleCountLabel(count: number): string {
+  return `${count} ${count === 1 ? 'article' : 'articles'}`;
+}
+
 export async function getArticles(): Promise<Article[]> {
   const articles = await getCollection('articles', ({ data }) => data.draft !== true);
   return articles.sort((a, b) => {
