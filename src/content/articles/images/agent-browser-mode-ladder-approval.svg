@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 480" role="img" aria-labelledby="title desc">
+  <title id="title">Agent browser mode ladder with human approval</title>
+  <desc id="desc">Four rungs: read-only, draft or propose, act with approval, and full act. Higher rungs expand tool power and require stronger human gates.</desc>
+  <defs>
+    <marker id="up" viewBox="0 0 10 10" refX="5" refY="2" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M 0 10 L 5 0 L 10 10 z" fill="#334155"/>
+    </marker>
+    <filter id="shadow2" x="-3%" y="-3%" width="106%" height="112%">
+      <feDropShadow dx="0" dy="1" stdDeviation="1.4" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+  <rect width="980" height="480" fill="#f8fafc"/>
+
+  <text x="40" y="34" font-family="system-ui,Segoe UI,sans-serif" font-size="15" font-weight="700" fill="#0f172a">Mode ladder: read → draft → act-with-approval → full act</text>
+  <text x="40" y="56" font-family="system-ui,Segoe UI,sans-serif" font-size="12" fill="#64748b">Climb only as far as the task needs. Modes shrink the tool surface; approvals gate irreversible writes.</text>
+
+  <!-- Ladder column -->
+  <rect x="40" y="80" width="36" height="340" rx="8" fill="#e2e8f0"/>
+  <rect x="48" y="360" width="20" height="48" rx="4" fill="#94a3b8"/>
+  <rect x="48" y="280" width="20" height="48" rx="4" fill="#64748b"/>
+  <rect x="48" y="200" width="20" height="48" rx="4" fill="#475569"/>
+  <rect x="48" y="120" width="20" height="48" rx="4" fill="#0f172a"/>
+
+  <!-- Rung 1: read -->
+  <rect x="100" y="100" width="820" height="72" rx="12" fill="#ffffff" stroke="#93c5fd" stroke-width="1.6" filter="url(#shadow2)"/>
+  <rect x="112" y="112" width="72" height="48" rx="8" fill="#dbeafe" stroke="#3b82f6" stroke-width="1.3"/>
+  <text x="148" y="141" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="13" font-weight="700" fill="#1d4ed8">READ</text>
+  <text x="204" y="130" font-family="system-ui,Segoe UI,sans-serif" font-size="13" font-weight="700" fill="#0f172a">Observe only</text>
+  <text x="204" y="152" font-family="system-ui,Segoe UI,sans-serif" font-size="12" fill="#475569">Navigate HTTPS, snapshot, list tabs. No clicks, field writes, JS, submits, or screenshots that persist files.</text>
+  <text x="860" y="141" text-anchor="end" font-family="system-ui,Segoe UI,sans-serif" font-size="11" font-weight="600" fill="#1d4ed8">Lowest power</text>
+
+  <!-- Rung 2: draft -->
+  <rect x="100" y="188" width="820" height="72" rx="12" fill="#ffffff" stroke="#fcd34d" stroke-width="1.6" filter="url(#shadow2)"/>
+  <rect x="112" y="200" width="72" height="48" rx="8" fill="#fef3c7" stroke="#f59e0b" stroke-width="1.3"/>
+  <text x="148" y="229" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="12" font-weight="700" fill="#b45309">DRAFT</text>
+  <text x="204" y="218" font-family="system-ui,Segoe UI,sans-serif" font-size="13" font-weight="700" fill="#0f172a">Propose / fill without submit</text>
+  <text x="204" y="240" font-family="system-ui,Segoe UI,sans-serif" font-size="12" fill="#475569">Type, select, fill supported fields. No click / keypress / submit / dialog confirm. Sites may still autosave.</text>
+  <text x="860" y="229" text-anchor="end" font-family="system-ui,Segoe UI,sans-serif" font-size="11" font-weight="600" fill="#b45309">Human reviews draft</text>
+
+  <!-- Rung 3: act + approval -->
+  <rect x="100" y="276" width="820" height="72" rx="12" fill="#ffffff" stroke="#fdba74" stroke-width="1.6" filter="url(#shadow2)"/>
+  <rect x="112" y="288" width="72" height="48" rx="8" fill="#ffedd5" stroke="#f97316" stroke-width="1.3"/>
+  <text x="148" y="308" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="11" font-weight="700" fill="#c2410c">ACT +</text>
+  <text x="148" y="324" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="11" font-weight="700" fill="#c2410c">APPROVE</text>
+  <text x="204" y="306" font-family="system-ui,Segoe UI,sans-serif" font-size="13" font-weight="700" fill="#0f172a">Act with human gate</text>
+  <text x="204" y="328" font-family="system-ui,Segoe UI,sans-serif" font-size="12" fill="#475569">Submits, payment-like pages, JS, cookie/storage access held until you approve (elicitation preferred).</text>
+  <text x="860" y="317" text-anchor="end" font-family="system-ui,Segoe UI,sans-serif" font-size="11" font-weight="600" fill="#c2410c">Gate irreversible writes</text>
+
+  <!-- Rung 4: full act -->
+  <rect x="100" y="364" width="820" height="72" rx="12" fill="#ffffff" stroke="#fca5a5" stroke-width="1.6" filter="url(#shadow2)"/>
+  <rect x="112" y="376" width="72" height="48" rx="8" fill="#fee2e2" stroke="#ef4444" stroke-width="1.3"/>
+  <text x="148" y="405" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="13" font-weight="700" fill="#b91c1c">FULL</text>
+  <text x="204" y="394" font-family="system-ui,Segoe UI,sans-serif" font-size="13" font-weight="700" fill="#0f172a">Full act (default on many bridges)</text>
+  <text x="204" y="416" font-family="system-ui,Segoe UI,sans-serif" font-size="12" fill="#475569">Clicks, submits, navigations as the logged-in user. Treat as explicit risk acceptance on a shared session.</text>
+  <text x="860" y="405" text-anchor="end" font-family="system-ui,Segoe UI,sans-serif" font-size="11" font-weight="600" fill="#b91c1c">Highest blast radius</text>
+</svg>
