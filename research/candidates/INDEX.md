@@ -52,12 +52,12 @@ Path: `research/candidates/` (INDEX.md + by-date/ + optional by-cluster/)
 | nana multi coding-agent terminal Windows | coding-agent-ux | commercial investigation | rejected | 2026-11-04 | [PH](https://www.producthunt.com/products/nana-2); [nana](https://nana.areshk.dev/) | SEO rejected |
 | Prism Cursor for hardware | hardware-ai | informational | rejected | 2026-11-04 | Product Hunt Nov 3 2026 | SEO rejected |
 | LifeVal OpenAI everyday-life benchmark | ai-evals | informational | rejected | 2026-11-04 | Product Hunt LifeVal Nov 3 2026 | SEO rejected |
-| Kitsune Firefox MCP for coding agents | agent-browser-mcp | commercial investigation | gating | 2026-11-04 | [GitHub](https://github.com/junyeong-nero/kitsune); [PyPI](https://pypi.org/project/kitsune-browser-mcp/); [X](https://x.com/owencaldera/status/2117663955988410796) | h02; vs Playwright lag axis |
-| Vercel agent-desktop a11y computer use | computer-use-native | commercial investigation | gating | 2026-11-04 | [GitHub](https://github.com/vercel-labs/agent-desktop); [npm](https://www.npmjs.com/package/agent-desktop); [X](https://x.com/EmanHermanez/status/2117663530316919169) | h02; a11y refs vs screenshot |
-| Wavefunction minimal Mac coding agent | coding-agent-ux | commercial investigation | gating | 2026-11-04 | [PH](https://www.producthunt.com/products/wavefunction); [site](https://wavefunction.si) | h02 PH |
-| Claude Code rewind restore code | coding-agent-dx | informational | gating | 2026-11-04 | [X](https://x.com/adrianogomes/status/2117665400993591534) | h02; need official docs |
-| Scrawl visual frame for AI agents | coding-agent-ux | commercial investigation | gating | 2026-11-04 | Product Hunt Scrawl | h02 backup |
-| One Roof human-in-charge agent build | human-agent-governance | commercial investigation | gating | 2026-11-04 | Product Hunt One Roof | h02 backup |
-| kwant multi-agent review before done | multi-agent-eval | informational | gating | 2026-11-04 | Product Hunt kwant | h02 weak |
-| Peji AI chat controlled browser | agent-browser | commercial investigation | gating | 2026-11-04 | Product Hunt Peji | h02; hang if Kitsune passes |
-| Framer Agents Claude Code canvas | design-agents | commercial investigation | gating | 2026-11-04 | Framer PH launch Nov 2026 | h02; product-news risk |
+| Kitsune Firefox MCP for coding agents | agent-browser-mcp | commercial investigation | writing | 2026-11-04 | [GitHub](https://github.com/junyeong-nero/kitsune); [PyPI](https://pypi.org/project/kitsune-browser-mcp/); [X](https://x.com/owencaldera/status/2117663955988410796) | h02; vs Playwright lag axis; SEO approved h02 (shared Firefox trust); writing; PR#9 candidates in |
+| Vercel agent-desktop a11y computer use | computer-use-native | commercial investigation | new | 2026-11-04 | [GitHub](https://github.com/vercel-labs/agent-desktop); [npm](https://www.npmjs.com/package/agent-desktop); [X](https://x.com/EmanHermanez/status/2117663530316919169) | h02; a11y refs vs screenshot; SEO hung h02 (piekwerk/official occupy a11y vs pixels) |
+| Wavefunction minimal Mac coding agent | coding-agent-ux | commercial investigation | rejected | 2026-11-04 | [PH](https://www.producthunt.com/products/wavefunction); [site](https://wavefunction.si) | h02 PH; SEO 不过 h02 |
+| Claude Code rewind restore code | coding-agent-dx | informational | rejected | 2026-11-04 | [X](https://x.com/adrianogomes/status/2117665400993591534) | h02; need official docs; SEO 不过 h02 (vs git guides dense) |
+| Scrawl visual frame for AI agents | coding-agent-ux | commercial investigation | rejected | 2026-11-04 | Product Hunt Scrawl | h02 backup; SEO 不过 h02 |
+| One Roof human-in-charge agent build | human-agent-governance | commercial investigation | rejected | 2026-11-04 | Product Hunt One Roof | h02 backup; SEO 不过 h02 |
+| kwant multi-agent review before done | multi-agent-eval | informational | rejected | 2026-11-04 | Product Hunt kwant | h02 weak; SEO 毙 h02 |
+| Peji AI chat controlled browser | agent-browser | commercial investigation | new | 2026-11-04 | Product Hunt Peji | h02; hang if Kitsune passes; SEO hung h02 (A passed; do not open) |
+| Framer Agents Claude Code canvas | design-agents | commercial investigation | rejected | 2026-11-04 | Framer PH launch Nov 2026 | h02; product-news risk; SEO 毙 h02 |
