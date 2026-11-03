@@ -1,0 +1,131 @@
+---
+title: "pull_request_target Default Block: A Dec 2 Migration Runbook"
+description: "Public GitHub repos block pull_request_target by default on December 2, 2026, with brownouts on November 9 and 16. Inventory workflows, switch CI to pull_request, and allow the trigger only for jobs that never execute fork code."
+pubDate: 2026-11-04
+category: security
+tags: [github-actions, pull-request-target, ci-security, workflow-policy, secrets]
+---
+
+On December 2, 2026, GitHub Actions will **block `pull_request_target` by default in public repositories** unless an Actions event policy explicitly allows it. Enforcement was previously dated November 2 and slipped. Two brownouts—November 9 and November 16, each 16:00–18:00 UTC—temporarily apply the block so you can see which automations die before the date is permanent ([changelog, November 2, 2026](https://github.blog/changelog/2026-11-02-pull_request_target-blocked-by-default-december-2/)).
+
+This is a platform policy change, not a malware write-up. The decision in front of a maintainer is narrower than “is our CI compromised?”:
+
+> For each public workflow that still listens to `pull_request_target`, do we **delete the trigger**, **move the untrusted work to `pull_request`**, or **name that workflow file in an allow policy** because it must act as the base repository—and have we proven it never executes fork code?
+
+Private and internal repositories are outside the default. GitHub Enterprise Server is outside this changelog. A policy you already wrote is not overwritten by the new default ([Securely using pull_request_target](https://docs.github.com/en/actions/reference/security/securely-using-pull_request_target); [changelog](https://github.blog/changelog/2026-11-02-pull_request_target-blocked-by-default-december-2/)).
+
+## What actually changes, and what a brownout is for
+
+The control lives in **workflow execution protections**, generally available since September 17, 2026. GitHub ships a default event policy that disables `pull_request_target` on public repositories that do not already have an applicable event policy. Until enforcement, that default sits in **evaluate** mode: runs still happen, and policy insights list the runs that would be blocked ([GA changelog](https://github.blog/changelog/2026-09-17-workflow-execution-protections-in-github-actions-generally-available/); [governing execution](https://docs.github.com/en/actions/how-tos/administer/control-workflow-execution)).
+
+| Window | What you observe |
+| --- | --- |
+| Now → first brownout | Evaluate. Workflows run. Insights show would-block. |
+| Nov 9, 2026, 16:00–18:00 UTC | Blocked `pull_request_target` attempts in affected public repos **fail with an annotation and do not execute**. |
+| After that window | Back to evaluate. Runs proceed with warnings. |
+| Nov 16, 2026, 16:00–18:00 UTC | Second identical brownout. |
+| Dec 2, 2026 onward | Default block is permanent for repos that were on the default policy. |
+
+The brownouts are a discovery tool, not a secret incident. A two-hour failure that only hits `pull_request_target` on public repos is the signal you wanted: labelers, “safe to test” bots, coverage posters, and the dangerous “build the fork with secrets” jobs all go red together. If you wait until December 2, the same annotation is no longer temporary.
+
+Scope limits worth writing on the ticket:
+
+- **Public repos** on GitHub Free, Team, and Enterprise Cloud. Not Enterprise Server ([changelog](https://github.blog/changelog/2026-11-02-pull_request_target-blocked-by-default-december-2/)).
+- **Not** private or internal repositories.
+- **Not** a replacement for an event policy you already configured. If you allowlisted the event, the default does not silently revoke it ([docs](https://docs.github.com/en/actions/reference/security/securely-using-pull_request_target)).
+- Enforcement language on the security page is specific: GitHub enforces the default for affected repositories that were using the default `pull_request_target` policy before general availability. Do not assume a brand-new public repo created after GA follows a different calendar without reading current insights.
+
+Policies can be repository, organization, or enterprise, and they can target **workflow file paths** rather than every YAML in the org ([governing execution](https://docs.github.com/en/actions/how-tos/administer/control-workflow-execution)). That is the supported way to keep one triage workflow and leave every other `pull_request_target` file blocked.
+
+## Why the trigger was dangerous (without the thriller)
+
+`pull_request` and `pull_request_target` fire on the same kind of pull-request activity. Trust is the difference.
+
+`pull_request` (and review / review-comment events) runs the **workflow file from the pull request’s merge commit**. On a fork, that file is written by someone without write access to the base. GitHub therefore gives a **read-only `GITHUB_TOKEN`**, withholds other secrets, and can require maintainer approval before workflows run for first-time contributors ([events that trigger workflows](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows); [securely using pull_request_target](https://docs.github.com/en/actions/reference/security/securely-using-pull_request_target)). Default `actions/checkout` checks out that same merge commit, so the code and the workflow agree.
+
+`pull_request_target` flips one fact: the workflow file, and a checkout that does not set `ref`, come from the **base repository’s default branch**. Because that YAML is trusted, the job receives the base `GITHUB_TOKEN` and repository or organization secrets—the same class of trust as `push`. Fork code is not executed by that default. The event exists so a trusted workflow can label, triage, or post an authenticated check on a fork pull request ([docs](https://docs.github.com/en/actions/reference/security/securely-using-pull_request_target)).
+
+The break is an override. Authors checkout `github.event.pull_request.head.sha`, the merge ref `refs/pull/N/merge`, or the fork repository, then run a build, test, install, or script from that tree. Checkout itself does not execute the Makefile. The next step does. GitHub’s security docs call this a **pwn request** and point at the Security Lab write-up [Preventing pwn requests](https://securitylab.github.com/resources/github-actions-preventing-pwn-requests/). The same shape exists on `issue_comment` and `workflow_run` if those jobs fetch fork code or treat a fork-uploaded artifact as a program. This article does not add a payload; the insecure shape is already the documented anti-pattern.
+
+![Diagram contrasting pull_request (merge-commit workflow, read-only token, no secrets) with pull_request_target (default-branch workflow, base token and secrets), and the failure mode of executing fork code in the privileged job](./images/pull-request-target-trust-split.svg)
+
+*Figure 1. Left: untrusted workflow, restricted token. Right: trusted workflow, base secrets. The red bar is the combination teams accidentally ship: privileged token plus executed fork tree.*
+
+Two adjacent controls are easy to misread:
+
+- **`permissions:` on `GITHUB_TOKEN`.** A workflow can still mint a write token. Least privilege (`contents: read`, plus only the scopes the labeler needs) limits blast radius. It does not make `npm test` from a fork safe if a secret is in the environment ([Use GITHUB_TOKEN](https://docs.github.com/en/actions/tutorials/authenticate-with-github_token)).
+- **Cache.** `pull_request_target` workflows get **read-only** cache access in the default branch scope. A save fails as a warning and the job continues. Opting into a write-capable `cache-mode` puts cache poisoning back on the table. Populate caches from `push`, not from this event ([docs](https://docs.github.com/en/actions/reference/security/securely-using-pull_request_target); [dependency caching](https://docs.github.com/en/actions/reference/workflows-and-actions/dependency-caching)).
+
+`actions/checkout` also grew an explicit opt-in, `allow-unsafe-pr-checkout: true`, for checking out fork heads. The name is meant to show up in review. It does not cover `git fetch`, `gh pr checkout`, third-party repos, or downloaded artifacts ([docs](https://docs.github.com/en/actions/reference/security/securely-using-pull_request_target)).
+
+## This is not GhostAction
+
+**GhostAction** is an October 2026 **credential-theft campaign** against GitHub Actions: compromised or lookalike workflow changes aimed at stealing tokens and cloud credentials (coverage from [GitGuardian](https://blog.gitguardian.com/ghostaction-github-actions-supply-chain-attack-returns/) and [Corgea](https://corgea.com/research/ghostaction-october-2026-fake-font-stage-oidc-aws-role-theft)). Respond to that as an incident: rotate secrets, review unexpected workflow diffs, treat OIDC role assumptions you did not author as hostile.
+
+**This article is the December 2 default block.** GitHub is changing what public repositories are allowed to trigger unless you opt in. A brownout failure is policy enforcement, not evidence that a campaign landed in your repo. You can have both problems in the same month; they do not share a fix. Blocking `pull_request_target` does not scan for a malicious action pin. Rotating a stolen `AWS_ROLE` does not satisfy the event policy.
+
+If a workflow diff you did not write appeared next to a secret read, stop and do incident response. Do not “fix” it by allowlisting `pull_request_target` for the whole organization.
+
+## Migration paths
+
+![Decision tree: no secrets means pull_request; executing fork code means split jobs; trusted-only automation means a file-scoped allow policy](./images/pull-request-target-migration-tree.svg)
+
+*Figure 2. Decide per file. Org-wide allow is the option that recreates today’s risk on December 3.*
+
+### Prefer `pull_request` and least privilege
+
+If the job’s real work is test, lint, or build, and it does not need secrets or a write token, change the trigger to `pull_request`. You get the fork’s workflow and code under the restrictions above. Set `permissions` to the minimum that job needs. Keep the default event policy so nobody reintroduces the privileged trigger beside it.
+
+Fork pull requests from new contributors may sit in “waiting for approval” under your Actions fork policy. That is a compute-abuse control on `pull_request`, documented with the event, not a substitute for secret handling ([events reference](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows)).
+
+### When `pull_request_target` is still justified
+
+Keep it only when a **trusted** workflow must do something a fork’s read-only token cannot: apply a label, comment with a bot identity, or post a check that requires the base token—and the job **does not build or run** the pull request tree.
+
+Justify it in the policy PR in one sentence: “`/.github/workflows/triage.yml` labels fork PRs; it never checks out `head.sha`; token scopes are `pull-requests: write` only.” Then allow **that file** in an Actions event policy ([governing execution](https://docs.github.com/en/actions/how-tos/administer/control-workflow-execution)). Evaluate the policy before you set it active if your plan includes Enterprise Cloud evaluate mode.
+
+Patterns that stay in the safe set when you are disciplined:
+
+- **No checkout of an untrusted ref** into a job that holds secrets. Reading PR metadata from `github.event` is data. Running the tree is not.
+- **Label or comment gates.** A privileged workflow triggers on a maintainer label, `/ok-to-test`, or a review from someone with write access—not on `synchronize` from the fork author. The gate has to be enforced in the trusted workflow (actor association, label applied by a trusted user), not by a string the fork can set in its own branch.
+- **Environment protection.** Put secret use behind an environment with required reviewers. Approval stops a drive-by; it does not help if reviewers rubber-stamp “CI failed, approve to rerun” on a job that still executes the fork ([deployments and environments](https://docs.github.com/en/actions/how-tos/deploy/configure-and-manage-deployments/manage-environments)).
+- **Reusable workflows for the privileged half.** Call a reusable workflow that lives in a trusted repo, pass **explicit** inputs, and do not pass the fork SHA into a step that checks it out and runs it. Secrets cross the `workflow_call` boundary only if you declare them; that declaration is a design review, not a default ([reuse workflows](https://docs.github.com/en/actions/how-tos/reuse-automations/reuse-workflows)). Lockfile protections do not cover job-level `uses:` of reusable workflows the way they cover step-level actions—pin and review those callers separately ([governing execution](https://docs.github.com/en/actions/how-tos/administer/control-workflow-execution)).
+- **OIDC to cloud roles.** Short-lived cloud tokens beat long-lived keys. They remain bearer credentials inside the job. A fork script that runs in that job can assume the role until the token expires. OIDC is not a reason to keep “test the PR with production secrets.”
+
+### Split when you truly need both
+
+Some pipelines want untrusted tests **and** a later privileged publish (coverage badge, internal package read, deploy preview). Split them:
+
+1. **Untrusted job** on `pull_request`: checkout default, run tests, upload a **data** artifact (report, SBOM). No secrets.
+2. **Privileged job** on a trusted trigger (`workflow_run` from the default branch workflow, or `pull_request_target` that never checks out the head): download the artifact and treat it as data. Do not `bash` it, do not `npm install` from it, do not unpack it over `$GITHUB_PATH`.
+
+GitHub’s warning on `workflow_run` matches this: artifacts from fork workflows are untrusted input ([docs](https://docs.github.com/en/actions/reference/security/securely-using-pull_request_target)). If you cannot state what the second job executes, you do not have a split; you have a pwn request with an extra upload.
+
+Self-hosted runners add a further constraint the docs state plainly: the machine must be ephemeral and must not sit on the internal network you are trying to protect. A persistent self-hosted runner plus fork code is a foothold even after you fix the event name ([secure use reference](https://docs.github.com/en/actions/reference/security/secure-use)).
+
+## Maintainer runbook
+
+Do this before November 9, 16:00 UTC, not during the brownout.
+
+1. **Inventory.** Search `.github/workflows` for `pull_request_target` across public repos. Include reusable workflow callers and org `.github` repos. Code search beats memory; forks of your template count if they are public and you operate them.
+2. **Read insights, not just YAML.** Settings → Actions → Policies → Policy insights (repository, org, or enterprise). Evaluate mode lists runs the default would block ([governing execution](https://docs.github.com/en/actions/how-tos/administer/control-workflow-execution)). A file that never runs will not show up—grep anyway.
+3. **Classify each file** with Figure 2: switch to `pull_request`, split, or file-scoped allow. Write the class in the tracking issue so December 2 is not a reread.
+4. **Secret audit on the survivors.** List `secrets.*` and any OIDC `permissions: id-token: write`. Remove secrets from jobs that only needed them “so tests can npm install from a private registry” unless you have moved that install behind a trusted proxy or a read-only, repo-scoped token you can revoke. Set top-level `permissions` so the default is not write-all ([GITHUB_TOKEN](https://docs.github.com/en/actions/tutorials/authenticate-with-github_token)).
+5. **Refuse these shapes in review** even if policy allows the event: checkout of `head.sha` or `refs/pull/*/merge`; `repository:` set to the fork; `gh pr checkout`; executing an artifact; `cache-mode` write; `allow-unsafe-pr-checkout` without a comment that says the tree is data-only and names the steps that touch it.
+6. **Brownout watch.** On November 9 and November 16, 16:00–18:00 UTC, filter failed runs whose annotation is the event policy, not a test failure. Anything red that you still need is a missed allow or a missed migration. After 18:00 the same workflows run again with warnings—do not treat recovery as done.
+7. **Fork rehearsal.** Open a pull request from a personal fork with no secrets in the branch. Confirm: untrusted CI runs; privileged triage still labels without checking out your branch; a deliberate “run tests in the privileged workflow” job does **not** exist. Repeat on a first-time contributor account if fork approval is part of your policy.
+8. **Policy change control.** Allow `pull_request_target` on specific workflow paths. Avoid an enterprise allow for the event on all public repos. If you need evaluate-before-active, use it, then switch enforcement before December 2 so you are not discovering a bad allow on the enforcement day.
+9. **December 2 check.** Confirm insights are empty for “would block” on workflows you intend to keep, and that intended blocks are the ones you can explain to release managers (issue-comment bots and release workflows are unchanged; only this event’s default moved).
+
+## Limitations (read these before you declare victory)
+
+- **Evaluate insights miss workflows that have not run.** A monthly triage file can be absent from the dashboard and still fail on December 2. Grep is mandatory.
+- **Brownouts are two hours.** A repo with no pull request in that window learns nothing. Schedule a fork PR inside each window for your busiest public repos.
+- **An existing allow policy opts you out of the default.** That can be correct. It can also be a forgotten org rule from a platform pilot. Read it before you assume GitHub will save you.
+- **The block is not a code scanner.** A `pull_request` workflow can still be malicious; it is malicious without your secrets. A `workflow_dispatch` or `issue_comment` job can still pwn itself. Event policy can restrict those events too; this default does not do that for you ([About Actions policies](https://docs.github.com/en/actions/concepts/about-actions-policies)).
+- **Environment reviewers fatigue.** If every fork needs a human click, reviewers approve without reading the run. Gates work when the privileged job is rare.
+- **Reusable workflows and composites hide the checkout.** The dangerous `ref` may live in a called file. Review the callee, not only `on:`.
+- **Enterprise Server** does not inherit this GitHub.com date. Track GHES release notes separately if you mirror the same YAML there.
+- **This does not remediate GhostAction** or any other stolen-credential campaign. Rotation, pin review, and unexpected workflow diffs stay your incident checklist.
+
+Primary sources for the dates and the threat model are the [December 2 changelog](https://github.blog/changelog/2026-11-02-pull_request_target-blocked-by-default-december-2/), the [September 17 protections GA note](https://github.blog/changelog/2026-09-17-workflow-execution-protections-in-github-actions-generally-available/) (including the October 21 editor’s note that moved enforcement to December 2), [Securely using pull_request_target](https://docs.github.com/en/actions/reference/security/securely-using-pull_request_target), and [Governing execution of workflows](https://docs.github.com/en/actions/how-tos/administer/control-workflow-execution). If GitHub edits the brownout clock, the changelog wins over this page.
