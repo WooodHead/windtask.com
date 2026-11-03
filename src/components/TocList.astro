@@ -1,0 +1,25 @@
+---
+interface Heading {
+  depth: number;
+  slug: string;
+  text: string;
+}
+
+interface Props {
+  toc: Heading[];
+}
+
+const { toc } = Astro.props;
+---
+
+<ol class="toc-list">
+  {
+    toc.map((heading) => (
+      <li>
+        <a class:list={[heading.depth === 3 && 'is-sub']} href={`#${heading.slug}`}>
+          {heading.text}
+        </a>
+      </li>
+    ))
+  }
+</ol>

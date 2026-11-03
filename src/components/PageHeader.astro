@@ -1,0 +1,18 @@
+---
+interface Props {
+  kicker: string;
+  kickerHref?: string;
+  title: string;
+  description?: string;
+}
+
+const { kicker, kickerHref, title, description } = Astro.props;
+---
+
+<header class="page-header">
+  <p class="kicker">
+    {kickerHref ? <a href={kickerHref}>{kicker}</a> : kicker}
+  </p>
+  <h1>{title}</h1>
+  {description && <p class="page-header__dek">{description}</p>}
+</header>

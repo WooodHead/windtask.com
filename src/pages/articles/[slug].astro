@@ -1,9 +1,10 @@
 ---
 import { render } from 'astro:content';
 import AdSlot from '../../components/AdSlot.astro';
+import TocList from '../../components/TocList.astro';
 import Base from '../../layouts/Base.astro';
 import { articlePath, categoryPath, categoryTitle, getArticles, type Article } from '../../lib/articles';
-import { formatDate, site } from '../../lib/site';
+import { formatDate, readingMinutes, site } from '../../lib/site';
 
 export async function getStaticPaths() {
   const articles = await getArticles();
@@ -26,6 +27,9 @@ const older = index >= 0 && index < articles.length - 1 ? articles[index + 1] : 
 const path = articlePath(article.id);
 const toc = headings.filter((heading) => heading.depth === 2 || heading.depth === 3);
 const canonical = new URL(path, site.url).href;
+const minutes = readingMinutes(article.body);
+const updated = article.data.updatedDate;
+const showUpdated = updated !== undefined && updated.getTime() > article.data.pubDate.getTime();
 
 const jsonLd = {
   '@context': 'https://schema.org',
@@ -52,64 +56,74 @@ const jsonLd = {
   tags={article.data.tags}
 >
   <script is:inline type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
-  <div class="lg:grid lg:grid-cols-[minmax(0,42rem)_16rem] lg:justify-between lg:gap-12">
-    <article>
-      <header class="max-w-3xl">
-        <p class="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs tracking-[0.14em] text-muted uppercase">
-          <a class="text-copper-deep hover:text-copper" href={categoryPath(article.data.category)}>
-            {categoryTitle(article.data.category)}
-          </a>
-          <time datetime={article.data.pubDate.toISOString()}>{formatDate(article.data.pubDate)}</time>
-          {article.data.sample && <span>Sample</span>}
-        </p>
-        <h1 class="mt-3 font-serif text-4xl leading-tight tracking-tight sm:text-5xl">{article.data.title}</h1>
-        <p class="mt-4 text-lg text-muted">{article.data.description}</p>
+  <div class="article-layout">
+    <header class="article-layout__header">
+      <p class="article-kicker">
+        <a href={categoryPath(article.data.category)}>{categoryTitle(article.data.category)}</a>
+        <time datetime={article.data.pubDate.toISOString()}>{formatDate(article.data.pubDate)}</time>
+        <span class="reading-time">{minutes} min read</span>
         {
-          article.data.tags.length > 0 && (
-            <ul class="mt-4 flex flex-wrap gap-2">
-              {article.data.tags.map((tag) => (
-                <li class="border border-line px-2 py-1 text-xs tracking-wide text-muted">{tag}</li>
-              ))}
-            </ul>
+          showUpdated && updated && (
+            <span class="reading-time">
+              Updated <time datetime={updated.toISOString()}>{formatDate(updated)}</time>
+            </span>
           )
         }
-      </header>
+        {article.data.sample && <span class="meta-pill">Sample</span>}
+      </p>
+      <h1>{article.data.title}</h1>
+      <p class="article-dek">{article.data.description}</p>
+      {
+        article.data.tags.length > 0 && (
+          <ul class="mt-5 flex flex-wrap gap-2">
+            {article.data.tags.map((tag) => (
+              <li class="tag">{tag}</li>
+            ))}
+          </ul>
+        )
+      }
+    </header>
+    <div class="article-layout__ad">
       <AdSlot />
-      <div class="article-body mt-8 max-w-3xl">
-        <Content />
-      </div>
-      <nav class="mt-12 grid gap-4 border-t border-line pt-6 sm:grid-cols-2" aria-label="More articles">
-        {
-          older && (
-            <a class="hover:text-copper-deep" href={articlePath(older.id)}>
-              <span class="block text-xs tracking-[0.14em] text-muted uppercase">Older</span>
-              <span class="mt-1 block font-serif text-xl">{older.data.title}</span>
-            </a>
-          )
-        }
-        {
-          newer && (
-            <a class:list={['hover:text-copper-deep', older && 'sm:text-right']} href={articlePath(newer.id)}>
-              <span class="block text-xs tracking-[0.14em] text-muted uppercase">Newer</span>
-              <span class="mt-1 block font-serif text-xl">{newer.data.title}</span>
-            </a>
-          )
-        }
-      </nav>
-    </article>
+    </div>
     {
       toc.length > 0 && (
-        <nav class="mt-10 lg:mt-0" aria-label="On this page">
-          <p class="text-xs tracking-[0.14em] text-muted uppercase">On this page</p>
-          <ol class="mt-3 space-y-2 text-sm lg:sticky lg:top-6">
-            {toc.map((heading) => (
-              <li class:list={[heading.depth === 3 && 'pl-3']}>
-                <a class="text-muted hover:text-copper-deep" href={`#${heading.slug}`}>
-                  {heading.text}
-                </a>
-              </li>
-            ))}
-          </ol>
+        <details class="toc-disclosure">
+          <summary>On this page</summary>
+          <TocList toc={toc} />
+        </details>
+      )
+    }
+    {
+      toc.length > 0 && (
+        <nav class="toc-sticky" aria-label="On this page">
+          <p class="kicker">On this page</p>
+          <TocList toc={toc} />
+        </nav>
+      )
+    }
+    <div class="article-body article-layout__body">
+      <Content />
+    </div>
+    {
+      (older || newer) && (
+        <nav class="pager article-layout__pager" aria-label="More articles">
+          {
+            older && (
+              <a class="pager-link" href={articlePath(older.id)}>
+                <span class="kicker">Older</span>
+                <span class="pager-link__title">{older.data.title}</span>
+              </a>
+            )
+          }
+          {
+            newer && (
+              <a class:list={['pager-link', older && 'sm:text-right', !older && 'sm:col-start-2 sm:text-right']} href={articlePath(newer.id)}>
+                <span class="kicker">Newer</span>
+                <span class="pager-link__title">{newer.data.title}</span>
+              </a>
+            )
+          }
         </nav>
       )
     }

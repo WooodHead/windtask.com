@@ -1,9 +1,25 @@
 // @ts-check
 import { defineConfig, envField } from 'astro/config';
 import cloudflare from '@astrojs/cloudflare';
+import { satteri } from '@astrojs/markdown-satteri';
 import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
+
+const wrapTables = {
+  name: 'wrap-tables',
+  element: {
+    filter: ['table'],
+    visit(node, ctx) {
+      ctx.wrapNode(node, {
+        type: 'element',
+        tagName: 'div',
+        properties: { className: ['table-scroll'] },
+        children: [],
+      });
+    },
+  },
+};
 
 // https://astro.build/config
 export default defineConfig({
@@ -23,6 +39,17 @@ export default defineConfig({
       filter: (page) => !page.includes('/404'),
     }),
   ],
+  markdown: {
+    processor: satteri({
+      hastPlugins: [wrapTables],
+    }),
+    shikiConfig: {
+      themes: {
+        light: 'github-light',
+        dark: 'github-dark',
+      },
+    },
+  },
   vite: {
     plugins: [tailwindcss()],
   },

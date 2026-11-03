@@ -1,38 +1,32 @@
 ---
+import PageHeader from '../../components/PageHeader.astro';
 import Base from '../../layouts/Base.astro';
-import { categoryPath, getArticles, groupByCategory } from '../../lib/articles';
-import { formatDate } from '../../lib/site';
+import { articleCountLabel, articlePath, categoryPath, getArticles, groupByCategory } from '../../lib/articles';
+import { formatDateCompact } from '../../lib/site';
 
 const groups = groupByCategory(await getArticles());
 const description = 'Topics on Windtask. Each category is a path on this site, not its own subdomain.';
 ---
 
 <Base title="Categories" description={description} canonical="/categories/">
-  <header class="max-w-3xl">
-    <p class="text-xs tracking-[0.18em] text-copper-deep uppercase">Shelves</p>
-    <h1 class="mt-3 font-serif text-4xl tracking-tight sm:text-5xl">Categories</h1>
-    <p class="mt-4 text-lg text-muted">{description}</p>
-  </header>
-  <ul class="mt-10 divide-y divide-line border-y border-line">
+  <PageHeader kicker="Shelves" title="Categories" description={description} />
+  <ul class="mt-10">
     {
       groups.map((group) => (
-        <li class="grid gap-4 py-6 sm:grid-cols-[14rem_minmax(0,1fr)]">
+        <li class="shelf">
           <div>
-            <h2 class="font-serif text-3xl">
-              <a class="hover:text-copper-deep" href={categoryPath(group.slug)}>
-                {group.title}
-              </a>
+            <p class="shelf__count">{articleCountLabel(group.articles.length)}</p>
+            <h2 class="shelf__title">
+              <a href={categoryPath(group.slug)}>{group.title}</a>
             </h2>
-            <p class="mt-2 text-sm text-muted">{group.description}</p>
+            <p class="shelf__text">{group.description}</p>
           </div>
-          <ul>
+          <ul class="shelf__list">
             {group.articles.map((article) => (
-              <li>
-                <a class="flex flex-wrap items-baseline justify-between gap-x-4 py-1 hover:text-copper-deep" href={`/articles/${article.id}/`}>
-                  <span>{article.data.title}</span>
-                  <time class="text-sm text-muted" datetime={article.data.pubDate.toISOString()}>
-                    {formatDate(article.data.pubDate)}
-                  </time>
+              <li class="shelf__item">
+                <a href={articlePath(article.id)}>
+                  <span class="shelf__name">{article.data.title}</span>
+                  <time datetime={article.data.pubDate.toISOString()}>{formatDateCompact(article.data.pubDate)}</time>
                 </a>
               </li>
             ))}
