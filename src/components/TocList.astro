@@ -7,16 +7,17 @@ interface Heading {
 
 interface Props {
   toc: Heading[];
+  idPrefix?: string;
 }
 
-const { toc } = Astro.props;
+const { toc, idPrefix = '' } = Astro.props;
 ---
 
 <ol class="toc-list">
   {
     toc.map((heading) => (
       <li>
-        <a class:list={[heading.depth === 3 && 'is-sub']} href={`#${heading.slug}`}>
+        <a class:list={[heading.depth === 3 && 'is-sub']} href={`#${idPrefix}${heading.slug}`}>
           {heading.text}
         </a>
       </li>

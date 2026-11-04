@@ -1,16 +1,25 @@
 ---
 import AdSlot from '../../components/AdSlot.astro';
 import ArticleCard from '../../components/ArticleCard.astro';
+import Bi from '../../components/Bi.astro';
 import PageHeader from '../../components/PageHeader.astro';
 import Base from '../../layouts/Base.astro';
 import { getArticles } from '../../lib/articles';
 
 const articles = await getArticles();
 const description = 'Every note published on Windtask, newest first.';
+const descriptionZh = 'Windtask 上的全部文章，新的在前。';
 ---
 
-<Base title="Articles" description={description} canonical="/articles/">
-  <PageHeader kicker="Index" title="Articles" description={description} />
+<Base title="Articles" titleZh="文章" description={description} canonical="/articles/">
+  <PageHeader
+    kicker="Index"
+    kickerZh="目录"
+    title="Articles"
+    titleZh="文章"
+    description={description}
+    descriptionZh={descriptionZh}
+  />
   <AdSlot />
   {
     articles.length > 0 ? (
@@ -20,7 +29,7 @@ const description = 'Every note published on Windtask, newest first.';
         ))}
       </div>
     ) : (
-      <p class="mt-8 text-muted">No articles yet.</p>
+      <p class="mt-8 text-muted"><Bi en="No articles yet." zh="还没有文章。" /></p>
     )
   }
 </Base>

@@ -1,18 +1,37 @@
 ---
+import Bi from './Bi.astro';
+
 interface Props {
   kicker: string;
+  kickerZh?: string;
   kickerHref?: string;
   title: string;
+  titleZh?: string;
   description?: string;
+  descriptionZh?: string;
 }
 
-const { kicker, kickerHref, title, description } = Astro.props;
+const { kicker, kickerZh, kickerHref, title, titleZh, description, descriptionZh } = Astro.props;
 ---
 
 <header class="page-header">
   <p class="kicker">
-    {kickerHref ? <a href={kickerHref}>{kicker}</a> : kicker}
+    {
+      kickerHref ? (
+        <a href={kickerHref}>
+          <Bi en={kicker} zh={kickerZh ?? kicker} />
+        </a>
+      ) : (
+        <Bi en={kicker} zh={kickerZh ?? kicker} />
+      )
+    }
   </p>
-  <h1>{title}</h1>
-  {description && <p class="page-header__dek">{description}</p>}
+  <h1><Bi en={title} zh={titleZh ?? title} /></h1>
+  {
+    description && (
+      <p class="page-header__dek">
+        <Bi en={description} zh={descriptionZh ?? description} />
+      </p>
+    )
+  }
 </header>

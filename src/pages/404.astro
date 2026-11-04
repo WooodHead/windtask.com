@@ -1,17 +1,20 @@
 ---
+import Bi from '../components/Bi.astro';
 import Base from '../layouts/Base.astro';
 
 const description = 'That path is not on Windtask.';
 ---
 
-<Base title="Page not found" description={description} canonical="/404.html" noindex>
+<Base title="Page not found" titleZh="未找到页面" description={description} canonical="/404.html" noindex>
   <p class="kicker">404</p>
   <h1 class="mt-3 max-w-[12em] font-serif text-[clamp(2.4rem,6vw,3.6rem)] leading-[1.05] font-medium tracking-[-0.03em] text-balance">
-    Nothing filed here.
+    <Bi en="Nothing filed here." zh="这里没有归档。" />
   </h1>
-  <p class="mt-4 max-w-xl text-lg leading-relaxed text-muted">{description}</p>
+  <p class="mt-4 max-w-xl text-lg leading-relaxed text-muted">
+    <Bi en={description} zh="这条路径不在 Windtask 上。" />
+  </p>
   <p class="mt-8 flex flex-wrap gap-3">
-    <a class="btn btn-primary" href="/">Back home</a>
-    <a class="btn btn-ghost" href="/articles/">Articles</a>
+    <a class="btn btn-primary" href="/"><Bi en="Back home" zh="回到首页" /></a>
+    <a class="btn btn-ghost" href="/articles/"><Bi en="Articles" zh="文章" /></a>
   </p>
 </Base>

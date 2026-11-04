@@ -7,7 +7,7 @@ const slug = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'Use lowercase kebab
 const articles = defineCollection({
   loader: glob({
     base: './src/content/articles',
-    pattern: '**/*.{md,mdx}',
+    pattern: ['**/*.{md,mdx}', '!**/*.zh.md', '!**/*.zh.mdx'],
   }),
   schema: z.object({
     title: z.string(),
@@ -21,4 +21,17 @@ const articles = defineCollection({
   }),
 });
 
-export const collections = { articles };
+const articleZh = defineCollection({
+  loader: glob({
+    base: './src/content/articles',
+    pattern: ['**/*.zh.md', '**/*.zh.mdx'],
+    // github-slugger drops the dot in `name.zh`, which collides the lookup key.
+    generateId: ({ entry }) => entry.replace(/\.(md|mdx)$/i, ''),
+  }),
+  schema: z.object({
+    title: z.string(),
+    description: z.string(),
+  }),
+});
+
+export const collections = { articles, articleZh };

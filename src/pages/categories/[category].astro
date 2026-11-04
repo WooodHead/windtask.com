@@ -28,8 +28,16 @@ const title = categoryTitle(group.slug);
 const description = categoryDescription(group.slug);
 ---
 
-<Base title={title} description={description} canonical={categoryPath(group.slug)}>
-  <PageHeader kicker="Categories" kickerHref="/categories/" title={title} description={description} />
+<Base title={title} titleZh={group.titleZh} description={description} canonical={categoryPath(group.slug)}>
+  <PageHeader
+    kicker="Categories"
+    kickerZh="分类"
+    kickerHref="/categories/"
+    title={title}
+    titleZh={group.titleZh}
+    description={description}
+    descriptionZh={group.descriptionZh}
+  />
   <div class="mt-8">
     {group.articles.map((article) => <ArticleCard article={article} />)}
   </div>

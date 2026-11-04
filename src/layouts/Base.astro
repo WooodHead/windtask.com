@@ -1,11 +1,14 @@
 ---
 import '../styles/global.css';
+import LangToggle from '../components/LangToggle.astro';
 import Seo from '../components/Seo.astro';
+import Bi from '../components/Bi.astro';
 import { PUBLIC_ADSENSE_CLIENT } from 'astro:env/client';
 import { site } from '../lib/site';
 
 interface Props {
   title: string;
+  titleZh?: string;
   description: string;
   canonical?: string;
   ogType?: 'website' | 'article';
@@ -17,6 +20,7 @@ interface Props {
 
 const {
   title,
+  titleZh,
   description,
   canonical = Astro.url.pathname,
   ogType = 'website',
@@ -32,21 +36,23 @@ const adsSrc = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?c
 const year = new Date().getUTCFullYear();
 
 const nav = [
-  { href: '/articles/', label: 'Articles' },
-  { href: '/categories/', label: 'Categories' },
-  { href: '/rss.xml', label: 'RSS' },
+  { href: '/articles/', label: 'Articles', labelZh: '文章' },
+  { href: '/categories/', label: 'Categories', labelZh: '分类' },
+  { href: '/rss.xml', label: 'RSS', labelZh: 'RSS' },
 ];
+
+const pageTitle = title === site.name ? site.name : `${title} · ${site.name}`;
+const pageTitleZh = titleZh ? (titleZh === site.name ? site.name : `${titleZh} · ${site.name}`) : pageTitle;
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="en" data-title-en={pageTitle} data-title-zh={pageTitleZh}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content={Astro.generator} />
-    <meta name="color-scheme" content="light dark" />
-    <meta name="theme-color" content="#f6f3ec" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#141311" media="(prefers-color-scheme: dark)" />
+    <meta name="color-scheme" content="light" />
+    <meta name="theme-color" content="#f7f6f3" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" href="/favicon.ico" />
     <Seo
@@ -59,10 +65,21 @@ const nav = [
       tags={tags}
       noindex={noindex}
     />
+    <script is:inline>
+      try {
+        if (localStorage.getItem('windtask-lang') === 'zh') {
+          var root = document.documentElement;
+          root.setAttribute('data-lang', 'zh');
+          root.lang = 'zh-Hans';
+          var zhTitle = root.getAttribute('data-title-zh');
+          if (zhTitle) document.title = zhTitle;
+        }
+      } catch (e) {}
+    </script>
     {adsClient && <script is:inline async src={adsSrc} crossorigin="anonymous" />}
   </head>
   <body>
-    <a class="skip-link" href="#content">Skip to content</a>
+    <a class="skip-link" href="#content"><Bi en="Skip to content" zh="跳到正文" /></a>
     <header class="site-header">
       <div class="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-2.5 sm:px-8 sm:py-3">
         <a class="brand" href="/">
@@ -78,23 +95,26 @@ const nav = [
           </svg>
           Windtask
         </a>
-        <nav aria-label="Primary">
-          <ul class="flex items-center">
-            {
-              nav.map((item) => (
-                <li>
-                  <a
-                    class="nav-link"
-                    href={item.href}
-                    aria-current={pathname.startsWith(item.href) ? 'page' : undefined}
-                  >
-                    {item.label}
-                  </a>
-                </li>
-              ))
-            }
-          </ul>
-        </nav>
+        <div class="flex items-center gap-1 sm:gap-2">
+          <LangToggle />
+          <nav aria-label="Primary">
+            <ul class="flex items-center">
+              {
+                nav.map((item) => (
+                  <li>
+                    <a
+                      class="nav-link"
+                      href={item.href}
+                      aria-current={pathname.startsWith(item.href) ? 'page' : undefined}
+                    >
+                      <Bi en={item.label} zh={item.labelZh} />
+                    </a>
+                  </li>
+                ))
+              }
+            </ul>
+          </nav>
+        </div>
       </div>
     </header>
     <main id="content" tabindex="-1" class="mx-auto w-full max-w-6xl flex-1 px-4 py-10 outline-none sm:px-8 sm:py-14">
@@ -104,7 +124,9 @@ const nav = [
       <div class="mx-auto grid max-w-6xl gap-8 px-4 py-10 sm:px-8 sm:grid-cols-[minmax(0,1.4fr)_auto] sm:items-end">
         <div class="max-w-md">
           <p class="font-serif text-xl font-medium tracking-wide">Windtask</p>
-          <p class="mt-2 text-sm leading-relaxed text-muted">{site.description}</p>
+          <p class="mt-2 text-sm leading-relaxed text-muted">
+            <Bi en={site.description} zh={site.descriptionZh} />
+          </p>
         </div>
         <nav aria-label="Footer">
           <ul class="flex flex-wrap gap-x-5 gap-y-2 text-sm font-medium">
@@ -112,7 +134,7 @@ const nav = [
               nav.map((item) => (
                 <li>
                   <a class="text-muted hover:text-ink" href={item.href}>
-                    {item.label}
+                    <Bi en={item.label} zh={item.labelZh} />
                   </a>
                 </li>
               ))
@@ -126,5 +148,56 @@ const nav = [
         </p>
       </div>
     </footer>
+    <script is:inline>
+      (function () {
+        var KEY = 'windtask-lang';
+        function prefixZhIds() {
+          document.querySelectorAll('.lang-zh [id]').forEach(function (el) {
+            if (el.id.indexOf('zh-') !== 0) el.id = 'zh-' + el.id;
+          });
+        }
+        function apply(lang, persist) {
+          var root = document.documentElement;
+          var zh = lang === 'zh';
+          if (zh) {
+            root.setAttribute('data-lang', 'zh');
+            root.lang = 'zh-Hans';
+          } else {
+            root.removeAttribute('data-lang');
+            root.lang = 'en';
+          }
+          var next = zh ? root.getAttribute('data-title-zh') : root.getAttribute('data-title-en');
+          if (next) document.title = next;
+          if (persist) {
+            try {
+              localStorage.setItem(KEY, zh ? 'zh' : 'en');
+            } catch (e) {}
+          }
+          document.querySelectorAll('[data-set-lang]').forEach(function (btn) {
+            var on = btn.getAttribute('data-set-lang') === (zh ? 'zh' : 'en');
+            btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+          });
+        }
+        function syncFromStorage() {
+          var stored = 'en';
+          try {
+            if (localStorage.getItem(KEY) === 'zh') stored = 'zh';
+          } catch (e) {}
+          apply(stored, false);
+        }
+        prefixZhIds();
+        document.addEventListener('click', function (event) {
+          var target = event.target;
+          var btn = target && target.closest ? target.closest('[data-set-lang]') : null;
+          if (!btn) return;
+          apply(btn.getAttribute('data-set-lang') || 'en', true);
+        });
+        syncFromStorage();
+        // Prerender and back-forward cache can restore a page that ran
+        // before the visitor changed language. Re-read storage on activation.
+        document.addEventListener('prerenderingchange', syncFromStorage);
+        window.addEventListener('pageshow', syncFromStorage);
+      })();
+    </script>
   </body>
 </html>
