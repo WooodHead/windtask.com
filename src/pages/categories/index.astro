@@ -1,32 +1,55 @@
 ---
+import Bi from '../../components/Bi.astro';
 import PageHeader from '../../components/PageHeader.astro';
 import Base from '../../layouts/Base.astro';
-import { articleCountLabel, articlePath, categoryPath, getArticles, groupByCategory } from '../../lib/articles';
+import { articleCountLabel, articlePath, categoryPath, getArticles, getZhMap, groupByCategory } from '../../lib/articles';
 import { formatDateCompact } from '../../lib/site';
 
 const groups = groupByCategory(await getArticles());
+const zhMap = await getZhMap();
 const description = 'Topics on Windtask. Each category is a path on this site, not its own subdomain.';
+const descriptionZh = 'Windtask 上的主题。每个分类都是本站的一条路径，而不是单独的子域名。';
 ---
 
-<Base title="Categories" description={description} canonical="/categories/">
-  <PageHeader kicker="Shelves" title="Categories" description={description} />
+<Base title="Categories" titleZh="分类" description={description} canonical="/categories/">
+  <PageHeader
+    kicker="Shelves"
+    kickerZh="分类架"
+    title="Categories"
+    titleZh="分类"
+    description={description}
+    descriptionZh={descriptionZh}
+  />
   <ul class="mt-10">
     {
       groups.map((group) => (
         <li class="shelf">
           <div>
-            <p class="shelf__count">{articleCountLabel(group.articles.length)}</p>
+            <p class="shelf__count">
+              <Bi en={articleCountLabel(group.articles.length)} zh={articleCountLabel(group.articles.length, 'zh')} />
+            </p>
             <h2 class="shelf__title">
-              <a href={categoryPath(group.slug)}>{group.title}</a>
+              <a href={categoryPath(group.slug)}>
+                <Bi en={group.title} zh={group.titleZh} />
+              </a>
             </h2>
-            <p class="shelf__text">{group.description}</p>
+            <p class="shelf__text">
+              <Bi en={group.description} zh={group.descriptionZh} />
+            </p>
           </div>
           <ul class="shelf__list">
             {group.articles.map((article) => (
               <li class="shelf__item">
                 <a href={articlePath(article.id)}>
-                  <span class="shelf__name">{article.data.title}</span>
-                  <time datetime={article.data.pubDate.toISOString()}>{formatDateCompact(article.data.pubDate)}</time>
+                  <span class="shelf__name">
+                    <Bi en={article.data.title} zh={zhMap.get(article.id)?.data.title ?? article.data.title} />
+                  </span>
+                  <time datetime={article.data.pubDate.toISOString()}>
+                    <Bi
+                      en={formatDateCompact(article.data.pubDate)}
+                      zh={formatDateCompact(article.data.pubDate, 'zh')}
+                    />
+                  </time>
                 </a>
               </li>
             ))}

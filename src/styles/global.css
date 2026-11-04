@@ -1,45 +1,25 @@
 @import "tailwindcss";
-@import "@fontsource-variable/newsreader/wght.css";
-@import "@fontsource-variable/newsreader/wght-italic.css";
-@import "@fontsource-variable/source-sans-3/wght.css";
 
 :root {
-  --paper: #f6f3ec;
-  --paper-2: #fffcf6;
+  --paper: #f7f6f3;
+  --paper-2: #ffffff;
   --ink: #1c1917;
-  --muted: #564f45;
-  --line: #d3c4ae;
+  --muted: #57534e;
+  --line: #e4e0d8;
   --copper: #9a3412;
   --link: #7c2d12;
   --link-hover: #5c220c;
   --code-bg: rgb(28 25 23 / 0.06);
-  --code-block: #241f1c;
-  --code-block-ink: #f6f3ec;
+  --code-block: #f3f1ec;
+  --code-block-ink: #1c1917;
   --figure: #f8fafc;
   --figure-line: #d5dee8;
-  color-scheme: light;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --paper: #141311;
-    --paper-2: #1e1b17;
-    --ink: #f4efe6;
-    --muted: #c9bfb2;
-    --line: #4e463d;
-    --copper: #e7b497;
-    --link: #f0c7ad;
-    --link-hover: #f8e4d6;
-    --code-bg: rgb(244 239 230 / 0.09);
-    --code-block: #1a1816;
-    --code-block-ink: #f4efe6;
-    color-scheme: dark;
-  }
+  color-scheme: only light;
 }
 
 @theme inline {
-  --font-sans: "Source Sans 3 Variable", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
-  --font-serif: "Newsreader Variable", "Iowan Old Style", Palatino, Georgia, serif;
+  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  --font-serif: Georgia, "Iowan Old Style", "Palatino Linotype", Palatino, "Songti SC", SimSun, "Times New Roman", serif;
   --font-mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
   --color-paper: var(--paper);
   --color-paper-2: var(--paper-2);
@@ -91,6 +71,41 @@ body {
   outline-offset: 3px;
 }
 
+html:not([data-lang="zh"]) .lang-zh,
+html[data-lang="zh"] .lang-en {
+  display: none;
+}
+
+.lang-toggle {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--paper-2);
+}
+
+.lang-toggle button {
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  min-height: 2rem;
+  padding: 0 0.7rem;
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  cursor: pointer;
+}
+
+html:not([data-lang="zh"]) .lang-toggle [data-set-lang="en"],
+html[data-lang="zh"] .lang-toggle [data-set-lang="zh"] {
+  background: var(--ink);
+  color: var(--paper);
+}
+
 .skip-link {
   position: absolute;
   left: 1rem;
@@ -135,12 +150,6 @@ body {
   height: 1.7rem;
   flex: none;
   border-radius: 5px;
-}
-
-@media (prefers-color-scheme: dark) {
-  .brand-mark {
-    box-shadow: 0 0 0 1px color-mix(in srgb, var(--ink) 42%, transparent);
-  }
 }
 
 .nav-link {
@@ -976,17 +985,6 @@ body {
   margin: 2.4rem 0;
   border: 0;
   border-top: 1px solid var(--line);
-}
-
-@media (prefers-color-scheme: dark) {
-  .astro-code,
-  .astro-code span {
-    color: var(--shiki-dark) !important;
-    background-color: var(--shiki-dark-bg) !important;
-    font-style: var(--shiki-dark-font-style) !important;
-    font-weight: var(--shiki-dark-font-weight) !important;
-    text-decoration: var(--shiki-dark-text-decoration) !important;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {

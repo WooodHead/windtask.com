@@ -1,0 +1,128 @@
+---
+title: "pull_request_target 默认拦截：12 月 2 日迁移操作手册"
+description: "公开的 GitHub 仓库将于 2026 年 12 月 2 日默认拦截 pull_request_target，并在 11 月 9 日与 16 日进行限时中断。盘点工作流，将 CI 切换到 pull_request，并仅对从不执行 fork 代码的作业放行该触发器。"
+---
+
+2026 年 12 月 2 日，GitHub Actions 将**在公开仓库中默认拦截 `pull_request_target`**，除非 Actions 事件策略明确允许。强制执行原先定在 11 月 2 日，后来推迟了。两次限时中断——11 月 9 日与 11 月 16 日，每次均为 UTC 16:00–18:00——会暂时施加这次拦截，让你在该日期成为永久措施之前，看清哪些自动化会停摆（[更新日志，2026 年 11 月 2 日](https://github.blog/changelog/2026-11-02-pull_request_target-blocked-by-default-december-2/)）。
+
+这是一项平台策略变更，不是一篇恶意软件专文。摆在维护者面前的决定，比“我们的 CI 是否已被攻破？”更窄：
+
+> 对于每一个仍在监听 `pull_request_target` 的公开工作流，我们是**删除该触发器**，**把不可信的工作移到 `pull_request`**，还是**在允许策略中点名该工作流文件**（因为它必须以基础仓库的身份行事）——并且我们是否已经证明它从不执行 fork 代码？
+
+私有仓库与内部仓库不在这一默认范围之内。GitHub Enterprise Server 不在这份更新日志的范围之内。你已经写好的策略不会被新的默认值覆盖（[安全使用 pull_request_target](https://docs.github.com/en/actions/reference/security/securely-using-pull_request_target)；[更新日志](https://github.blog/changelog/2026-11-02-pull_request_target-blocked-by-default-december-2/)）。
+
+## 实际会改变什么，以及限时中断用来做什么
+
+这项控制位于**工作流执行保护**之中，自 2026 年 9 月 17 日起正式可用。GitHub 推出一项默认事件策略，对尚未拥有适用事件策略的公开仓库禁用 `pull_request_target`。在强制执行之前，该默认值处于 **evaluate** 模式：运行仍会发生，策略洞察会列出将被拦截的运行（[正式发布更新日志](https://github.blog/changelog/2026-09-17-workflow-execution-protections-in-github-actions-generally-available/)；[管控执行](https://docs.github.com/en/actions/how-tos/administer/control-workflow-execution)）。
+
+| 时间窗口 | 你会观察到什么 |
+| --- | --- |
+| 现在 → 第一次限时中断 | Evaluate。工作流会运行。洞察显示 would-block。 |
+| 2026 年 11 月 9 日，UTC 16:00–18:00 | 受影响公开仓库中被拦截的 `pull_request_target` 尝试会**带着注释失败，并且不会执行**。 |
+| 该窗口之后 | 回到 evaluate。运行继续，并附带警告。 |
+| 2026 年 11 月 16 日，UTC 16:00–18:00 | 第二次完全相同的限时中断。 |
+| 2026 年 12 月 2 日起 | 对于原本处于默认策略上的仓库，默认拦截成为永久措施。 |
+
+限时中断是一种发现工具，不是一起秘密事件。一场只击中公开仓库上 `pull_request_target` 的两小时失败，正是你想要的信号：打标签器、“可以安全测试”机器人、覆盖率发布器，以及危险的“用密钥构建 fork”作业，会一起变红。如果等到 12 月 2 日，同一条注释就不再是临时的。
+
+值得写进工单的范围界限：
+
+- **公开仓库**，位于 GitHub Free、Team 与 Enterprise Cloud。不包括 Enterprise Server（[更新日志](https://github.blog/changelog/2026-11-02-pull_request_target-blocked-by-default-december-2/)）。
+- **不包括**私有仓库或内部仓库。
+- **不是**对你已经配置的事件策略的替代。如果你已将该事件列入允许列表，默认值不会悄悄撤销它（[文档](https://docs.github.com/en/actions/reference/security/securely-using-pull_request_target)）。
+- 安全页面上的强制执行措辞是具体的：GitHub 对那些在正式可用之前就在使用默认 `pull_request_target` 策略的受影响仓库强制执行该默认值。不要在未阅读当前洞察的情况下，假定正式可用之后新建的公开仓库遵循不同的时间表。
+
+策略可以是仓库级、组织级或企业级，并且可以针对**工作流文件路径**，而不是组织里的每一份 YAML（[管控执行](https://docs.github.com/en/actions/how-tos/administer/control-workflow-execution)）。这是保留一个分诊工作流、并让其余每一个 `pull_request_target` 文件继续被拦截的受支持做法。
+
+## 这个触发器为何危险（不写成惊悚故事）
+
+`pull_request` 与 `pull_request_target` 会在同一类拉取请求活动上触发。差别在于信任。
+
+`pull_request`（以及 review / review-comment 事件）运行的是**来自拉取请求合并提交的工作流文件**。在 fork 上，这份文件由对基础仓库没有写权限的人编写。因此 GitHub 给出**只读的 `GITHUB_TOKEN`**，扣留其他密钥，并且可以要求维护者批准之后，才为首次贡献者运行工作流（[触发工作流的事件](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows)；[安全使用 pull_request_target](https://docs.github.com/en/actions/reference/security/securely-using-pull_request_target)）。默认的 `actions/checkout` 会检出同一个合并提交，因此代码与工作流是一致的。
+
+`pull_request_target` 只翻转一个事实：工作流文件，以及未设置 `ref` 的检出，来自**基础仓库的默认分支**。因为这份 YAML 受信任，作业会收到基础仓库的 `GITHUB_TOKEN` 以及仓库或组织密钥——与 `push` 属于同一类信任。按该默认行为，fork 代码不会被执行。这个事件之所以存在，是为了让受信任的工作流能够在 fork 拉取请求上打标签、做分诊，或发布经过身份验证的检查（[文档](https://docs.github.com/en/actions/reference/security/securely-using-pull_request_target)）。
+
+安全被打破，是因为有人做了覆盖。作者检出 `github.event.pull_request.head.sha`、合并引用 `refs/pull/N/merge`，或 fork 仓库，然后从那棵树运行构建、测试、安装或脚本。检出本身不会执行 Makefile。下一步才会。GitHub 的安全文档称之为 **pwn request**，并指向 Security Lab 的文章 [防范 pwn request](https://securitylab.github.com/resources/github-actions-preventing-pwn-requests/)。如果 `issue_comment` 与 `workflow_run` 上的作业拉取 fork 代码，或把 fork 上传的构件当作程序，同样的形态也存在。本文不附加任何载荷；不安全的形态已经是文档中的反模式。
+
+![对比示意图：pull_request（合并提交上的工作流、只读令牌、没有密钥）与 pull_request_target（默认分支上的工作流、基础令牌与密钥），以及在特权作业中执行 fork 代码这一失败模式](./images/pull-request-target-trust-split.svg)
+
+*图 1. 左侧：不可信工作流，受限令牌。右侧：受信任工作流，基础密钥。红条是团队不慎交付出去的组合：特权令牌，加上被执行的 fork 树。*
+
+两项邻近的控制很容易被误读：
+
+- **`GITHUB_TOKEN` 上的 `permissions:`。** 工作流仍然可以签发一枚写令牌。最小权限（`contents: read`，再加上打标签器所需的范围）能限制爆炸半径。如果环境里有密钥，它并不会让来自 fork 的 `npm test` 变得安全（[使用 GITHUB_TOKEN](https://docs.github.com/en/actions/tutorials/authenticate-with-github_token)）。
+- **缓存。** `pull_request_target` 工作流在默认分支范围内得到**只读**的缓存访问。保存会作为警告失败，作业继续。一旦选择具备写入能力的 `cache-mode`，缓存投毒就会重新回到桌面上。应从 `push` 填充缓存，而不是从这一事件填充（[文档](https://docs.github.com/en/actions/reference/security/securely-using-pull_request_target)；[依赖缓存](https://docs.github.com/en/actions/reference/workflows-and-actions/dependency-caching)）。
+
+`actions/checkout` 还增加了一项显式的选择加入参数 `allow-unsafe-pr-checkout: true`，用于检出 fork 的 head。这个名字就是为了在审查中显出来。它并不覆盖 `git fetch`、`gh pr checkout`、第三方仓库或已下载的构件（[文档](https://docs.github.com/en/actions/reference/security/securely-using-pull_request_target)）。
+
+## 这不是 GhostAction
+
+**GhostAction** 是 2026 年 10 月一场针对 GitHub Actions 的**凭证窃取活动**：被攻破或仿冒的工作流改动，旨在窃取令牌与云端凭证（报道来自 [GitGuardian](https://blog.gitguardian.com/ghostaction-github-actions-supply-chain-attack-returns/) 与 [Corgea](https://corgea.com/research/ghostaction-october-2026-fake-font-stage-oidc-aws-role-theft)）。按事件来响应：轮换密钥，审查意外的工作流差异，把并非你所编写的 OIDC 角色假定视为敌对行为。
+
+**本文讲的是 12 月 2 日的默认拦截。** GitHub 正在改变公开仓库在你未选择加入时被允许触发的内容。限时中断中的失败是策略强制执行，不是某场活动已经落入你的仓库的证据。同一个月里你可以同时遇到这两个问题；它们并不共用一套修复。拦截 `pull_request_target` 不会扫描恶意的 action pin。轮换被盗的 `AWS_ROLE` 并不能满足事件策略。
+
+如果一份并非你所写的工作流差异出现在一次密钥读取旁边，停下来做事件响应。不要靠把整个组织的 `pull_request_target` 加入允许列表来“修复”它。
+
+## 迁移路径
+
+![决策树：没有密钥则使用 pull_request；要执行 fork 代码则拆分作业；仅限受信任的自动化则使用文件范围的允许策略](./images/pull-request-target-migration-tree.svg)
+
+*图 2. 按文件做决定。组织范围的允许，是会在 12 月 3 日把今天的风险重新造出来的那个选项。*
+
+### 优先使用 `pull_request` 与最小权限
+
+如果作业真正要做的是测试、lint 或构建，并且不需要密钥或写令牌，就把触发器改成 `pull_request`。你会在上述限制之下得到 fork 的工作流与代码。把 `permissions` 设为该作业所需的最小值。保留默认事件策略，这样就不会有人在它旁边重新引入这个特权触发器。
+
+来自新贡献者的 fork 拉取请求，在你的 Actions fork 策略下可能会停在“等待批准”。这是 `pull_request` 上的算力滥用控制，与该事件一起写在文档里，并不能代替密钥处理（[事件参考](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows)）。
+
+### 何时 `pull_request_target` 仍然合理
+
+只有当一份**受信任**的工作流必须做 fork 的只读令牌做不到的事情时才保留它：打上标签、以机器人身份发表评论，或发布一个需要基础令牌的检查——并且该作业**不构建、也不运行**拉取请求的那棵树。
+
+在策略 PR 里用一句话说明理由：“`/.github/workflows/triage.yml` 为 fork PR 打标签；它从不检出 `head.sha`；令牌范围只有 `pull-requests: write`。”然后在 Actions 事件策略中允许**该文件**（[管控执行](https://docs.github.com/en/actions/how-tos/administer/control-workflow-execution)）。如果你的计划包含 Enterprise Cloud 的 evaluate 模式，在把它设为 active 之前，先对该策略做 evaluate。
+
+在你守住纪律时，仍然属于安全集合的模式：
+
+- **不要把不可信的 ref 检出**到持有密钥的作业中。从 `github.event` 读取 PR 元数据，那是数据。运行那棵树，就不是。
+- **标签或评论门禁。** 特权工作流在维护者标签、`/ok-to-test`，或来自拥有写权限者的审查上触发——而不是在来自 fork 作者的 `synchronize` 上触发。门禁必须在受信任的工作流中强制执行（actor 关联、由受信任用户打上的标签），而不是靠 fork 可以在自己分支里设置的字符串。
+- **环境防护。** 把密钥的使用放在要求审查者的环境后面。批准能挡住路过式攻击；如果审查者在一个仍会执行 fork 的作业上，对“CI 失败了，批准以便重跑”不加细看就盖章，它就帮不上忙（[部署与环境](https://docs.github.com/en/actions/how-tos/deploy/configure-and-manage-deployments/manage-environments)）。
+- **特权的那一半使用可复用工作流。** 调用位于受信任仓库中的可复用工作流，传入**显式**输入，并且不要把 fork 的 SHA 传给某个会检出并运行它的步骤。密钥只有在你声明之后才会越过 `workflow_call` 边界；这一声明是设计审查，不是默认行为（[复用工作流](https://docs.github.com/en/actions/how-tos/reuse-automations/reuse-workflows)）。锁文件保护覆盖步骤级 action 的方式，并不能同样覆盖作业级对可复用工作流的 `uses:`——要把这些调用方单独 pin 住并审查（[管控执行](https://docs.github.com/en/actions/how-tos/administer/control-workflow-execution)）。
+- **通过 OIDC 使用云角色。** 短寿命的云令牌胜过长期密钥。它们在作业内部仍然是不记名凭证。在该作业中运行的 fork 脚本，可以在令牌过期之前扮演该角色。OIDC 并不是继续保留“用生产密钥测试 PR”的理由。
+
+### 当你确实两者都需要时再拆分
+
+有些流水线既要不可信的测试，**也要**稍后的特权发布（覆盖率徽章、读取内部包、部署预览）。把它们拆开：
+
+1. **不可信作业**，位于 `pull_request`：按默认方式检出，运行测试，上传一份**数据**构件（报告、SBOM）。没有密钥。
+2. **特权作业**，位于受信任的触发器（来自默认分支工作流的 `workflow_run`，或从不检出 head 的 `pull_request_target`）：下载该构件，并把它当作数据。不要对它执行 `bash`，不要从它做 `npm install`，不要把它解压到 `$GITHUB_PATH` 上。
+
+GitHub 对 `workflow_run` 的警告与此相符：来自 fork 工作流的构件是不可信输入（[文档](https://docs.github.com/en/actions/reference/security/securely-using-pull_request_target)）。如果你说不清第二个作业执行了什么，你就没有完成拆分；你得到的是一次多了上传的 pwn request。
+
+自托管运行器还加上文档写得很明白的进一步约束：机器必须是临时的，并且不得位于你试图保护的内部网络上。持久的自托管运行器再加上 fork 代码，即使你已经改对了事件名称，仍然是一个立足点（[安全使用参考](https://docs.github.com/en/actions/reference/security/secure-use)）。
+
+## 维护者操作手册
+
+在 11 月 9 日 UTC 16:00 之前做完这些，不要拖到限时中断期间。
+
+1. **盘点。** 在各个公开仓库中搜索 `.github/workflows` 里的 `pull_request_target`。包括可复用工作流的调用方，以及组织的 `.github` 仓库。代码搜索胜过记忆；你的模板的 fork 如果是公开的、并且由你运营，也要算进去。
+2. **读洞察，而不只是 YAML。** 设置 → Actions → Policies → Policy insights（仓库、组织或企业）。Evaluate 模式会列出默认策略将要拦截的运行（[管控执行](https://docs.github.com/en/actions/how-tos/administer/control-workflow-execution)）。从未运行的文件不会出现——照样 grep。
+3. **为每个文件分类**，对照图 2：切换到 `pull_request`、拆分，或按文件范围允许。把类别写进跟踪 issue，这样 12 月 2 日就不必重新读一遍。
+4. **对留下来的那些做密钥审计。** 列出 `secrets.*` 以及任何 OIDC 的 `permissions: id-token: write`。从那些只是为了“让测试能从私有 registry 做 npm install”才需要密钥的作业中移除密钥，除非你已经把该安装挪到受信任的代理后面，或换成一枚可以撤销的、只读的、仓库范围令牌。设置顶层 `permissions`，使默认值不是 write-all（[GITHUB_TOKEN](https://docs.github.com/en/actions/tutorials/authenticate-with-github_token)）。
+5. **在审查中拒绝这些形态**，即使策略允许该事件：检出 `head.sha` 或 `refs/pull/*/merge`；把 `repository:` 设为 fork；`gh pr checkout`；执行构件；`cache-mode` 写入；使用 `allow-unsafe-pr-checkout` 时没有注释说明该树仅作数据，并点名接触它的步骤。
+6. **限时中断值守。** 在 11 月 9 日与 11 月 16 日的 UTC 16:00–18:00，筛选注释属于事件策略、而不是测试失败的失败运行。任何你仍然需要、却变红的东西，都是漏掉的允许或漏掉的迁移。18:00 之后，同样的工作流会带着警告再次运行——不要把恢复当成已经完成。
+7. **Fork 演练。** 从个人 fork 打开一个拉取请求，分支里不要放密钥。确认：不可信 CI 会运行；特权分诊仍然会打标签，且不会检出你的分支；一个故意的“在特权工作流里运行测试”作业**并不**存在。如果 fork 批准是你策略的一部分，再用首次贡献者账号重复一次。
+8. **策略变更管控。** 在特定工作流路径上允许 `pull_request_target`。避免在企业级对所有公开仓库允许该事件。如果你需要先 evaluate 再 active，就使用它，然后在 12 月 2 日之前切换到强制执行，以免在强制执行当天发现一条糟糕的允许规则。
+9. **12 月 2 日检查。** 确认你打算保留的工作流上，“would block”的洞察为空，并且打算拦截的那些是你能向发布经理解释的（issue-comment 机器人与发布工作流没有变化；变的只是这个事件的默认值）。
+
+## 限制（在宣布胜利之前先读这些）
+
+- **Evaluate 洞察会漏掉尚未运行的工作流。** 一份每月一次的分诊文件可以不出现在仪表板上，却仍然会在 12 月 2 日失败。Grep 是必须做的。
+- **限时中断只有两小时。** 在该窗口内没有拉取请求的仓库什么也学不到。为你最繁忙的公开仓库，在每个窗口内安排一次 fork PR。
+- **已有的允许策略会让你退出这一默认值。** 这可以是正确的。它也可以是平台试点留下的、被遗忘的组织规则。在假定 GitHub 会来救你之前，先把它读一遍。
+- **这次拦截不是代码扫描器。** `pull_request` 工作流仍然可以是恶意的；它在没有你的密钥时也是恶意的。`workflow_dispatch` 或 `issue_comment` 作业仍然可能把自己 pwn 掉。事件策略同样可以限制那些事件；这一默认值不会替你做这件事（[关于 Actions 策略](https://docs.github.com/en/actions/concepts/about-actions-policies)）。
+- **环境审查者会疲劳。** 如果每一个 fork 都需要一次人工点击，审查者会不读这次运行就批准。特权作业很少见时，门禁才有效。
+- **可复用工作流与 composite 会把检出藏起来。** 危险的 `ref` 可能位于被调用的文件中。要审查被调用方，而不只是 `on:`。
+- **Enterprise Server** 不会继承 GitHub.com 的这个日期。如果你在那里镜像同一份 YAML，请单独跟踪 GHES 的发行说明。
+- **这并不能补救 GhostAction**，也不能补救任何其他凭证被盗活动。轮换、pin 审查，以及意外的工作流差异，仍然是你的事件检查清单。
+
+日期与威胁模型的主要来源是 [12 月 2 日更新日志](https://github.blog/changelog/2026-11-02-pull_request_target-blocked-by-default-december-2/)、[9 月 17 日保护措施正式发布说明](https://github.blog/changelog/2026-09-17-workflow-execution-protections-in-github-actions-generally-available/)（包括 10 月 21 日把强制执行改到 12 月 2 日的编者注）、[安全使用 pull_request_target](https://docs.github.com/en/actions/reference/security/securely-using-pull_request_target)，以及 [管控工作流的执行](https://docs.github.com/en/actions/how-tos/administer/control-workflow-execution)。如果 GitHub 改了限时中断的时间，以更新日志为准，而不是本页。

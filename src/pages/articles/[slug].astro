@@ -1,9 +1,18 @@
 ---
 import { render } from 'astro:content';
 import AdSlot from '../../components/AdSlot.astro';
+import Bi from '../../components/Bi.astro';
 import TocList from '../../components/TocList.astro';
 import Base from '../../layouts/Base.astro';
-import { articlePath, categoryPath, categoryTitle, getArticles, type Article } from '../../lib/articles';
+import {
+  articlePath,
+  categoryPath,
+  categoryTitle,
+  categoryTitleZh,
+  getArticles,
+  getZhMap,
+  type Article,
+} from '../../lib/articles';
 import { formatDate, readingMinutes, site } from '../../lib/site';
 
 export async function getStaticPaths() {
@@ -21,15 +30,22 @@ interface Props {
 const { article } = Astro.props;
 const { Content, headings } = await render(article);
 const articles = await getArticles();
+const zhMap = await getZhMap();
+const zh = zhMap.get(article.id);
+const zhRendered = zh ? await render(zh) : undefined;
+const ZhContent = zhRendered?.Content;
 const index = articles.findIndex((item) => item.id === article.id);
 const newer = index > 0 ? articles[index - 1] : undefined;
 const older = index >= 0 && index < articles.length - 1 ? articles[index + 1] : undefined;
 const path = articlePath(article.id);
 const toc = headings.filter((heading) => heading.depth === 2 || heading.depth === 3);
+const zhToc = (zhRendered?.headings ?? []).filter((heading) => heading.depth === 2 || heading.depth === 3);
 const canonical = new URL(path, site.url).href;
 const minutes = readingMinutes(article.body);
+const zhMinutes = readingMinutes(zh?.body, 'zh');
 const updated = article.data.updatedDate;
 const showUpdated = updated !== undefined && updated.getTime() > article.data.pubDate.getTime();
+const titleZh = zh?.data.title;
 
 const jsonLd = {
   '@context': 'https://schema.org',
@@ -41,6 +57,7 @@ const jsonLd = {
   mainEntityOfPage: canonical,
   keywords: article.data.tags.join(', '),
   articleSection: categoryTitle(article.data.category),
+  inLanguage: 'en',
   author: { '@type': 'Organization', name: site.name, url: site.url },
   publisher: { '@type': 'Organization', name: site.name, url: site.url },
 };
@@ -48,6 +65,7 @@ const jsonLd = {
 
 <Base
   title={article.data.title}
+  titleZh={titleZh}
   description={article.data.description}
   canonical={path}
   ogType="article"
@@ -59,20 +77,33 @@ const jsonLd = {
   <div class="article-layout">
     <header class="article-layout__header">
       <p class="article-kicker">
-        <a href={categoryPath(article.data.category)}>{categoryTitle(article.data.category)}</a>
-        <time datetime={article.data.pubDate.toISOString()}>{formatDate(article.data.pubDate)}</time>
-        <span class="reading-time">{minutes} min read</span>
+        <a href={categoryPath(article.data.category)}>
+          <Bi en={categoryTitle(article.data.category)} zh={categoryTitleZh(article.data.category)} />
+        </a>
+        <time datetime={article.data.pubDate.toISOString()}>
+          <Bi en={formatDate(article.data.pubDate)} zh={formatDate(article.data.pubDate, 'zh')} />
+        </time>
+        <span class="reading-time">
+          <Bi en={`${minutes} min read`} zh={`${zh ? zhMinutes : minutes} 分钟阅读`} />
+        </span>
         {
           showUpdated && updated && (
             <span class="reading-time">
-              Updated <time datetime={updated.toISOString()}>{formatDate(updated)}</time>
+              <span class="lang-en">
+                Updated <time datetime={updated.toISOString()}>{formatDate(updated)}</time>
+              </span>
+              <span class="lang-zh">
+                更新于 <time datetime={updated.toISOString()}>{formatDate(updated, 'zh')}</time>
+              </span>
             </span>
           )
         }
-        {article.data.sample && <span class="meta-pill">Sample</span>}
+        {article.data.sample && <span class="meta-pill"><Bi en="Sample" zh="示例" /></span>}
       </p>
-      <h1>{article.data.title}</h1>
-      <p class="article-dek">{article.data.description}</p>
+      <h1><Bi en={article.data.title} zh={titleZh ?? article.data.title} /></h1>
+      <p class="article-dek">
+        <Bi en={article.data.description} zh={zh?.data.description ?? article.data.description} />
+      </p>
       {
         article.data.tags.length > 0 && (
           <ul class="mt-5 flex flex-wrap gap-2">
@@ -88,22 +119,47 @@ const jsonLd = {
     </div>
     {
       toc.length > 0 && (
-        <details class="toc-disclosure">
+        <details class="toc-disclosure lang-en">
           <summary>On this page</summary>
           <TocList toc={toc} />
         </details>
       )
     }
     {
+      zhToc.length > 0 && (
+        <details class="toc-disclosure lang-zh">
+          <summary>本页目录</summary>
+          <TocList toc={zhToc} idPrefix="zh-" />
+        </details>
+      )
+    }
+    {
       toc.length > 0 && (
-        <nav class="toc-sticky" aria-label="On this page">
+        <nav class="toc-sticky lang-en" aria-label="On this page">
           <p class="kicker">On this page</p>
           <TocList toc={toc} />
         </nav>
       )
     }
-    <div class="article-body article-layout__body">
+    {
+      zhToc.length > 0 && (
+        <nav class="toc-sticky lang-zh" aria-label="本页目录">
+          <p class="kicker">本页目录</p>
+          <TocList toc={zhToc} idPrefix="zh-" />
+        </nav>
+      )
+    }
+    <div class="article-body article-layout__body lang-en" lang="en">
       <Content />
+    </div>
+    <div class="article-body article-layout__body lang-zh" lang="zh-Hans">
+      {
+        ZhContent ? (
+          <ZhContent />
+        ) : (
+          <p>这篇还没有中文正文。语言偏好已保存，有译文的文章会直接显示中文。</p>
+        )
+      }
     </div>
     {
       (older || newer) && (
@@ -111,16 +167,20 @@ const jsonLd = {
           {
             older && (
               <a class="pager-link" href={articlePath(older.id)}>
-                <span class="kicker">Older</span>
-                <span class="pager-link__title">{older.data.title}</span>
+                <span class="kicker"><Bi en="Older" zh="更早" /></span>
+                <span class="pager-link__title">
+                  <Bi en={older.data.title} zh={zhMap.get(older.id)?.data.title ?? older.data.title} />
+                </span>
               </a>
             )
           }
           {
             newer && (
               <a class:list={['pager-link', older && 'sm:text-right', !older && 'sm:col-start-2 sm:text-right']} href={articlePath(newer.id)}>
-                <span class="kicker">Newer</span>
-                <span class="pager-link__title">{newer.data.title}</span>
+                <span class="kicker"><Bi en="Newer" zh="更新" /></span>
+                <span class="pager-link__title">
+                  <Bi en={newer.data.title} zh={zhMap.get(newer.id)?.data.title ?? newer.data.title} />
+                </span>
               </a>
             )
           }

@@ -1,5 +1,6 @@
 ---
-import { articlePath, categoryPath, categoryTitle } from '../lib/articles';
+import Bi from './Bi.astro';
+import { articlePath, categoryPath, categoryTitle, categoryTitleZh, getZhMap } from '../lib/articles';
 import { formatDateCompact } from '../lib/site';
 import type { Article } from '../lib/articles';
 
@@ -8,18 +9,25 @@ interface Props {
 }
 
 const { article } = Astro.props;
+const zh = (await getZhMap()).get(article.id);
 ---
 
 <article class="article-card">
   <p class="article-card__meta">
     <a class="text-link hover:text-link-hover" href={categoryPath(article.data.category)}>
-      {categoryTitle(article.data.category)}
+      <Bi en={categoryTitle(article.data.category)} zh={categoryTitleZh(article.data.category)} />
     </a>
-    <time datetime={article.data.pubDate.toISOString()}>{formatDateCompact(article.data.pubDate)}</time>
-    {article.data.sample && <span class="meta-pill">Sample</span>}
+    <time datetime={article.data.pubDate.toISOString()}>
+      <Bi en={formatDateCompact(article.data.pubDate)} zh={formatDateCompact(article.data.pubDate, 'zh')} />
+    </time>
+    {article.data.sample && <span class="meta-pill"><Bi en="Sample" zh="示例" /></span>}
   </p>
   <h2 class="article-card__title">
-    <a href={articlePath(article.id)}>{article.data.title}</a>
+    <a href={articlePath(article.id)}>
+      <Bi en={article.data.title} zh={zh?.data.title ?? article.data.title} />
+    </a>
   </h2>
-  <p class="article-card__dek">{article.data.description}</p>
+  <p class="article-card__dek">
+    <Bi en={article.data.description} zh={zh?.data.description ?? article.data.description} />
+  </p>
 </article>

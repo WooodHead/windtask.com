@@ -1,11 +1,23 @@
 ---
 import ArticleCard from '../components/ArticleCard.astro';
+import Bi from '../components/Bi.astro';
 import Base from '../layouts/Base.astro';
-import { articleCountLabel, articlePath, categoryPath, categoryTitle, getArticles, groupByCategory } from '../lib/articles';
+import {
+  articleCountLabel,
+  articlePath,
+  categoryPath,
+  categoryTitle,
+  categoryTitleZh,
+  getArticles,
+  getZhMap,
+  groupByCategory,
+} from '../lib/articles';
 import { formatDate, site } from '../lib/site';
 
 const articles = await getArticles();
+const zhMap = await getZhMap();
 const featured = articles[0];
+const featuredZh = featured ? zhMap.get(featured.id) : undefined;
 const rest = articles.slice(1);
 const groups = groupByCategory(articles);
 
@@ -22,14 +34,14 @@ const jsonLd = {
   <script is:inline type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
   <section class="hero border-b border-line pb-12 lg:grid lg:grid-cols-[minmax(0,1.25fr)_minmax(16rem,0.75fr)] lg:items-end lg:gap-16">
     <div>
-      <p class="kicker">Field notes</p>
-      <h1>The session ended. The meter did not.</h1>
+      <p class="kicker"><Bi en="Field notes" zh="现场笔记" /></p>
+      <h1><Bi en="The session ended. The meter did not." zh="会话结束了。计费没有停。" /></h1>
     </div>
     <div class="mt-6 lg:mt-0">
-      <p class="hero__dek max-w-xl">{site.description}</p>
+      <p class="hero__dek max-w-xl"><Bi en={site.description} zh={site.descriptionZh} /></p>
       <p class="mt-6 flex flex-wrap gap-3">
-        <a class="btn btn-primary" href="/articles/">Read the articles</a>
-        <a class="btn btn-ghost" href="/categories/">Browse categories</a>
+        <a class="btn btn-primary" href="/articles/"><Bi en="Read the articles" zh="阅读文章" /></a>
+        <a class="btn btn-ghost" href="/categories/"><Bi en="Browse categories" zh="浏览分类" /></a>
       </p>
     </div>
   </section>
@@ -38,20 +50,32 @@ const jsonLd = {
     featured && (
       <section class="mt-12" aria-label="Latest">
         <div class="flex items-baseline justify-between gap-4">
-          <p class="kicker">Latest</p>
+          <p class="kicker"><Bi en="Latest" zh="最新" /></p>
           <a class="text-sm font-semibold text-link hover:text-link-hover" href="/articles/">
-            All articles
+            <Bi en="All articles" zh="全部文章" />
           </a>
         </div>
         <a class="feature-card" href={articlePath(featured.id)}>
           <p class="feature-card__meta">
-            <span>{categoryTitle(featured.data.category)}</span>
-            <time datetime={featured.data.pubDate.toISOString()}>{formatDate(featured.data.pubDate)}</time>
-            {featured.data.sample && <span class="meta-pill">Sample</span>}
+            <span>
+              <Bi en={categoryTitle(featured.data.category)} zh={categoryTitleZh(featured.data.category)} />
+            </span>
+            <time datetime={featured.data.pubDate.toISOString()}>
+              <Bi en={formatDate(featured.data.pubDate)} zh={formatDate(featured.data.pubDate, 'zh')} />
+            </time>
+            {featured.data.sample && (
+              <span class="meta-pill">
+                <Bi en="Sample" zh="示例" />
+              </span>
+            )}
           </p>
-          <h2 class="feature-card__title">{featured.data.title}</h2>
-          <p class="feature-card__dek">{featured.data.description}</p>
-          <p class="feature-card__cta">Read article</p>
+          <h2 class="feature-card__title">
+            <Bi en={featured.data.title} zh={featuredZh?.data.title ?? featured.data.title} />
+          </h2>
+          <p class="feature-card__dek">
+            <Bi en={featured.data.description} zh={featuredZh?.data.description ?? featured.data.description} />
+          </p>
+          <p class="feature-card__cta"><Bi en="Read article" zh="阅读文章" /></p>
         </a>
         {rest.length > 0 && (
           <div class="mt-8">
@@ -65,15 +89,26 @@ const jsonLd = {
   }
 
   <section class="mt-16" aria-labelledby="shelves-heading">
-    <h2 id="shelves-heading" class="font-serif text-[1.7rem] font-medium tracking-tight">Categories</h2>
+    <h2 id="shelves-heading" class="font-serif text-[1.7rem] font-medium tracking-tight">
+      <Bi en="Categories" zh="分类" />
+    </h2>
     <ul class="mt-5 grid gap-4 sm:grid-cols-2">
       {
         groups.map((group) => (
           <li>
             <a class="shelf-card" href={categoryPath(group.slug)}>
-              <p class="shelf-card__count">{articleCountLabel(group.articles.length)}</p>
-              <h3 class="shelf-card__title">{group.title}</h3>
-              <p class="shelf-card__text">{group.description}</p>
+              <p class="shelf-card__count">
+                <Bi
+                  en={articleCountLabel(group.articles.length)}
+                  zh={articleCountLabel(group.articles.length, 'zh')}
+                />
+              </p>
+              <h3 class="shelf-card__title">
+                <Bi en={group.title} zh={group.titleZh} />
+              </h3>
+              <p class="shelf-card__text">
+                <Bi en={group.description} zh={group.descriptionZh} />
+              </p>
             </a>
           </li>
         ))
